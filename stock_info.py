@@ -1,3 +1,4 @@
+%load StockInfo.ipynb
 import datetime
 from datetime import timedelta
 import json
@@ -13,7 +14,7 @@ dirPath = r"/home/db/stock_resource_center/resource/twse/json"
 #dirPath = r"./stock_data"
 result = [f for f in sorted(os.listdir(dirPath)) if os.path.isfile(os.path.join(dirPath, f))]
 
-for i in result:
+for i in result
     data_locate = os.path.join(dirPath,i)
     #data = pd.read_json(data_locate)
     with open(data_locate, 'r') as f:
