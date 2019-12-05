@@ -34,5 +34,5 @@ for i in result
         stock_data = pd.concat([stock_data,data],axis=0)
 
 print(stock_data)
-file_name = "stock"+stock_symbol+".csv"
+file_name = "./StockData/stock"+stock_symbol+".csv"
 stock_data.to_csv(file_name,index=False)
