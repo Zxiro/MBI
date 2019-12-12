@@ -13,13 +13,15 @@ import numpy as np
 dirPath = r"/home/db/stock_resource_center/resource/twse/json"
 #dirPath = r"./stock_data"
 result = [f for f in sorted(os.listdir(dirPath)) if os.path.isfile(os.path.join(dirPath, f))]
-
 with open(os.path.join(dirPath,result[-1]),'r') as f:
     data = json.load(f)
 stock_symbol = data.keys()
+print(stock_symbol)
+exit()
 stock_symbol = list(stock_symbol)
 stock_symbol.remove('id')
-
+print(stock_symbol)
+exit()
 for ss in stock_symbol:
     for i in result:
         data_locate = os.path.join(dirPath,i)
