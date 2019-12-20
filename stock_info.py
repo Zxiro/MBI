@@ -16,13 +16,15 @@ result = [f for f in sorted(os.listdir(dirPath)) if os.path.isfile(os.path.join(
 with open(os.path.join(dirPath,result[-1]),'r') as f:
     data = json.load(f)
 stock_symbol = data.keys()
-print(stock_symbol)
-exit()
+#print(stock_symbol)
+#exit()
 stock_symbol = list(stock_symbol)
 stock_symbol.remove('id')
-print(stock_symbol)
-exit()
+#print(stock_symbol)
+#exit()
 for ss in stock_symbol:
+    if(len(ss)!=4):
+        continue
     for i in result:
         data_locate = os.path.join(dirPath,i)
         #data = pd.read_json(data_locate)
@@ -50,3 +52,4 @@ for ss in stock_symbol:
     file_name = "./StockData/stock"+ss+".csv"
     stock_data.to_csv(file_name,index=False)
     stock_data.drop(stock_data.index, inplace=True)
+
