@@ -52,7 +52,7 @@ model.add(Dropout(0.2))
 model.add(Dense(1))
 
 sgd = optimizers.Adam(lr=0.001,beta_1=0.9, beta_2=0.999, amsgrad=False)
-model.compile(loss="mse",optimizer=sgd)
+model.compile(loss="mse",optimizer='sgd')
 
 model.summary()
 callback = EarlyStopping(monitor="loss", patience=10, verbose=1, mode="auto")
