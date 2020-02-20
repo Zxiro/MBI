@@ -1,3 +1,5 @@
 StockData/
 logs/
 .ipynb_checkpoints/
+merge/
+stockModel
