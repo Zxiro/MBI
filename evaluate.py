@@ -1,5 +1,5 @@
 class Evaluate:
-    def _init_(self,stock):
+    def __init__(self,stock):
         '''引入資料'''
         x_test = np.load('./StockData/TrainingData/NormtestingX_stock'+stock+'.npy')
         y_test = np.load('./StockData/TrainingData/testingY_stock'+stock+'.npy')

@@ -75,13 +75,18 @@ def resha(x): #從 (幾周,每周幾天,特徵數)reshape成(天*周,特徵數) 
     nptrain = np.array(x)
     nptrain = np.reshape(nptrain,(nptrain.shape[0]*nptrain.shape[1], nptrain.shape[2]))
     return nptrain
- 
-def save_np(x,y):
+
+def save_np(x,y,open_money):
     path = './StockData/stock0056.csv'
-    train_x, x_test,train_y, y_test = train_test_split(x,y,test_size=0.25,random_state=42)
-    stock_name = path[12:21] 
-    scaler = sk.preprocessing.StandardScaler() 
-    scaler = scaler.fit(resha(train_x))  #  標準化後的數據 
+    #train_x, x_test,train_y, y_test = train_test_split(x,y,test_size=0.25,random_state=42)
+    train_x = x[:-50]
+    train_y = y[:-50]
+    x_test = x[-50:]
+    y_test = y[-50:]
+    open_money = open_money[-50:]
+    stock_name = path[12:21]
+    scaler = sk.preprocessing.StandardScaler()
+    scaler = scaler.fit(resha(train_x))  #  標準化後的數據
     train_x = scaler.transform(resha(train_x))
     Npdata = train_x
     np.save(os.path.join('./StockData/TrainingData/','NormtrainingX_'+stock_name),Npdata)
@@ -91,14 +96,18 @@ def save_np(x,y):
     print(path[12:21]," testX  ",Npdata.shape) #print(Npdata)
     Npdata = np.array(train_y)
     np.save(os.path.join('./StockData/TrainingData/','trainingY_'+stock_name),Npdata)
-    print(path[12:21]," trainY  ",Npdata.shape) #print(Npdata)    
+    print(path[12:21]," trainY  ",Npdata.shape) #print(Npdata)
     Npdata = np.array(y_test)
     np.save(os.path.join('./StockData/TrainingData/','testingY_'+stock_name),Npdata)
     print(path[12:21]," testY  ",Npdata.shape) #print(Npdata)
-    
+    Npdata = np.array(open_money)
+    np.save(os.path.join('./StockData/TrainingData/','opentestingX_'+stock_name),Npdata)
+    print(path[12:21]," opentestX  ",Npdata.shape) #print(Npdata)
+
 def generate_train(close_type,feature,data):
     train_x = []
-    train_y = []   
+    train_y = []
+    open_money = []
     for _, date in data:
         date = date.dropna()
         if len(date)==5: #Decide the way seperate the stock data
@@ -109,12 +118,14 @@ def generate_train(close_type,feature,data):
             train_x.append(xlist) 
             mon_open = date['open'][0]
             fri_close = date['close'][4]
+            open_money.append("%.2f" %((mon_open)))
             train_y.append("%.2f" %(( fri_close - mon_open)))
         else:
             continue
     #print(train_x)
     #print(train_y)
-    save_np(train_x,train_y)
+
+    save_np(train_x,train_y,open_money)
 
 def add_features(csv_data):
     csv_data['rsv'] = add_rsv(csv_data)

@@ -49,7 +49,7 @@ stock_symbol = list(stock_symbol)
 stock_symbol.remove('id')'''
 if len(sys.argv) < 2:
     stock_symbol = input('輸入股票號碼:')
-else :
+else:
     stock_symbol = sys.argv[1]
 stock_read(stock_symbol,dirPath)
 '''for ss in stock_symbol:
