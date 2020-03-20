@@ -1,1 +1,1 @@
-{"features": ["k", "d", "rsv", "ma5", "ma20", "ma60"], "span": "w", "close_type": "close"}
+{"date": "2004-02-11", "features": ["close", "open", "high", "low", "volume", "k", "d", "rsv", "MA5", "MA20", "MA60"], "span": "d", "close_type": "close"}
