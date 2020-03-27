@@ -1,43 +1,18 @@
-import datetime#import datetime module convert data to datetime64(ns)
-import os
+import datetime #convert data to datetime64(ns)
 import glob
+import talib
+import os
 import json
 import numpy as np
-import pandas as pd#import pandas module(Better than csv module!)
-import sklearn as sk
+import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+#import mplfinance as mpf
 from statistics import mean
+from sklearn import preprocessing
 
-def add_MA5(data):
-    close=data.loc[ : ,'close'].values.tolist()
-    ma5=[]
-    for i in range(0,len(close)):
-        if i >= 4:
-            ma5.append(sum(data.loc[i-4:i, 'close'].values.tolist())/5)
-        else:
-            ma5.append(0)
-    return ma5
-
-def add_MA20(data):
-    close=data.loc[:, 'close'].values.tolist()
-    ma20=[]
-    for i in range(0,len(close)):
-        if i>=20:
-            ma20.append(sum(data.loc[i-20:i,'close'].values.tolist())/20)
-        else:
-            ma20.append(0)
-    return ma20
-
-def add_MA60(data):
-    close=data.loc[ : ,'close'].values.tolist()
-    ma60=[]
-    for i in range(0,len(close)):
-        if i>=60:
-            ma60.append(sum(data.loc[ i-60 : i ,'close'].values.tolist())/60)
-        else:
-            ma60.append(0)
-    return ma60
+def add_MA(data):
+    for ma in ['5', '20', '30', '60']:
+        data["MA"+ ma] = data.close.rolling(int(ma)).mean()
 
 def add_rsv(data): # rsv (今天收盤-最近9天的最低價)/(最近9天的最高價-最近9天的最低價)
     rsv=[]
@@ -71,13 +46,16 @@ def add_d(data): # d (2/3昨日d 加 1/3 今日k)
             d.append(k[0])            
     return d
 
+def add_USA_index(data):
+    return 0
+
 def resha(x): #從 (幾周,每周幾天,特徵數)reshape成(天*周,特徵數) ->(總天數,特徵數)
     nptrain = np.array(x)
     nptrain = np.reshape(nptrain,(nptrain.shape[0]*nptrain.shape[1], nptrain.shape[2]))
     return nptrain
 
 def save_np(x,y,open_money):
-    path = './StockData/stock0056.csv'
+    path = './StockData/stock0050.csv'
     #train_x, x_test,train_y, y_test = train_test_split(x,y,test_size=0.25,random_state=42)
     train_x = x[:-50]
     train_y = y[:-50]
@@ -85,41 +63,43 @@ def save_np(x,y,open_money):
     y_test = y[-50:]
     open_money = open_money[-50:]
     stock_name = path[12:21]
-    scaler = sk.preprocessing.StandardScaler()
+    scaler = preprocessing.StandardScaler() #初始化scaler
     scaler = scaler.fit(resha(train_x))  #  標準化後的數據
     train_x = scaler.transform(resha(train_x))
     Npdata = train_x
-    np.save(os.path.join('./StockData/TrainingData/','NormtrainingX_'+stock_name),Npdata)
-    print(path[12:21]," trainX  ",Npdata.shape)#print(Npdata)
+    np.save(os.path.join('./StockData/TrainingData/', 'NormtrainingX_' + stock_name), Npdata)
+    print(path[12:21] ," trainX  ", Npdata.shape)
+    print(Npdata)
     Npdata = scaler.transform(resha(x_test))# normalize x_test with scale of train_x
-    np.save(os.path.join('./StockData/TrainingData/','NormtestingX_'+stock_name),Npdata)
-    print(path[12:21]," testX  ",Npdata.shape) #print(Npdata)
+    np.save(os.path.join('./StockData/TrainingData/', 'NormtestingX_' + stock_name), Npdata)
+    print(path[12:21], " testX  ", Npdata.shape) 
+    print(Npdata)
     Npdata = np.array(train_y)
-    np.save(os.path.join('./StockData/TrainingData/','trainingY_'+stock_name),Npdata)
-    print(path[12:21]," trainY  ",Npdata.shape) #print(Npdata)
+    np.save(os.path.join('./StockData/TrainingData/', 'trainingY_' + stock_name), Npdata)
+    print(path[12:21], " trainY  ", Npdata.shape) 
+    print(Npdata)
     Npdata = np.array(y_test)
-    np.save(os.path.join('./StockData/TrainingData/','testingY_'+stock_name),Npdata)
-    print(path[12:21]," testY  ",Npdata.shape) #print(Npdata)
+    np.save(os.path.join('./StockData/TrainingData/', 'testingY_' + stock_name), Npdata)
+    print(path[12:21], " testY  ", Npdata.shape) 
+    print(Npdata)
     Npdata = np.array(open_money)
-    np.save(os.path.join('./StockData/TrainingData/','opentestingX_'+stock_name),Npdata)
-    print(path[12:21]," opentestX  ",Npdata.shape) #print(Npdata)
+    np.save(os.path.join('./StockData/TrainingData/', 'opentestingX_' + stock_name), Npdata)
+    print(path[12:21], " opentestX  ", Npdata.shape) 
+    print(Npdata)
 
-def generate_train(close_type,feature,data):
+def generate_train(close_type, feature, data):
     train_x = []
     train_y = []
     open_money = []
-    for _, date in data:
-        date = date.dropna()
-        if len(date)==5: #Decide the way seperate the stock data
-            xlist = date.loc[ : , feature].values.tolist()
-            for i  in range(0,len(xlist)):
-                for k  in range(0,len(xlist[i])):
-                    xlist[i][k] = "%.2f" %(xlist[i][k])
+    for _, span_data in data:
+        span_data = span_data.dropna()
+        if len(span_data) == 5: #Decide the way seperate the stock data
+            xlist = span_data.loc[:, feature].values.tolist()
             train_x.append(xlist) 
-            mon_open = date['open'][0]
-            fri_close = date['close'][4]
-            open_money.append("%.2f" %((mon_open)))
-            train_y.append("%.2f" %(( fri_close - mon_open)))
+            mon_open = span_data['open'][0]
+            fri_close = span_data['close'][4]
+            open_money.append(((mon_open)))
+            train_y.append((( fri_close - mon_open)))
         else:
             continue
     #print(train_x)
@@ -131,21 +111,22 @@ def add_features(csv_data):
     csv_data['rsv'] = add_rsv(csv_data)
     csv_data['k'] = add_k(csv_data)
     csv_data['d'] = add_d(csv_data)
-    csv_data['ma5'] = add_MA5(csv_data)
-    csv_data['ma20'] = add_MA20(csv_data)
-    csv_data['ma60'] = add_MA60(csv_data)
-    csv_data = csv_data.set_index('date').resample('w')#print(type(csv_data))
+    add_MA(csv_data)
+    csv_data = csv_data.set_index('date').resample('w')
     return csv_data
     
 
 def load_csv():
-    #for path in glob.glob(r'./StockData/stock0050.csv'):
-    csv_data = pd.DataFrame(pd.read_csv('./StockData/stock0050.csv'))
-    csv_data['date'] = pd.to_datetime(csv_data['date'])
-    csv_data = csv_data.drop([0],axis=0)#drop 第一天 因為stockdata 有16年跳到17年的問題
-    csv_data = csv_data.reset_index(drop=True)
-    return csv_data
-
+    stock_data = pd.DataFrame(pd.read_csv('./StockData/stock0050.csv'))
+    stock_data['date'] = pd.to_datetime(stock_data['date'])
+    index_list = glob.glob(r"./usa_stock_data/*.csv")
+    for i in range(0,4):
+        index_list[i] = pd.DataFrame(pd.read_csv(index_list[i]))
+        index_list[i] = index_list[i].drop(index_list[i].columns[0], axis=1)
+    stock_data = stock_data.drop([0], axis=0) #drop 第一天 因為stockdata 有16年跳到17年的問題
+    stock_data = stock_data.reset_index(drop=True)
+    index_list.insert(0,stock_data)
+    return stock_data, index_list
 
 with open("./config.json",'r') as load_f:
     config = json.load(load_f)
@@ -157,7 +138,10 @@ print("span: " , span)
 close_type = config['close_type']
 print("close_type: " , close_type)
 
-df = load_csv()
+df, USA = load_csv() #df 股票資料  USA 股票加上USA index
+re = pd.concat(USA, axis=1).reindex(USA[0].index)
+print(re)
+re.to_csv('/home/zxiro/MBI/feature/re.csv')
+exit()
 df = add_features(df)
-
 generate_train(close_type,feature,df)
