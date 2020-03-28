@@ -40,6 +40,7 @@ def stock_read(stock_symbol,dirPath):
         else:
             stock_data = pd.concat([stock_data,data],axis=0)
         print(stock_data)
+    return stock_data
 
 
 dirPath = r"/home/db/stock_resource_center/resource/twse/json"
@@ -54,7 +55,10 @@ if len(sys.argv) < 2:
     stock_symbol = input('輸入股票號碼:')
 else:
     stock_symbol = sys.argv[1]
-stock_read(stock_symbol,dirPath)
+stock_data = stock_read(stock_symbol,dirPath)
+file_name = "./StockData/stock"+stock_symbol+".csv"
+stock_data.to_csv(file_name,index=False)
+stock_data.drop(stock_data.index,inplace=True)
 '''for ss in stock_symbol:
     stock_read()
     file_name = "./StockData/stock"+ss+".csv"

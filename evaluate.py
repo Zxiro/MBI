@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import math
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import load_model
@@ -12,8 +13,26 @@ class Evaluate:
         self.x_test = self.x_test.reshape(-1,5,self.x_test.shape[1])
         self.predict = self.model.predict(self.x_test)
         self.stock = stock
-
     def roi(self):
+        principle = 1000000 # 本金
+        predict_money = 1000000
+        ans_money = 1000000
+        amount = 0
+        for predict, real, open_money in zip(self.predict, self.y_test, self.origin_x_test):
+            if float(predict) > 0:
+                amount = float(predict_money)/float(open_money)
+                amount = math.floor(amount)
+                predict_money += (amount * float(real))
+            if float(real) > 0:
+                amount = float(ans_money)/float(open_money)
+                amount = math.floor(amount)
+                ans_money += (amount * float(real))
+        predict_money = round(predict_money,2)
+        print("predict_money: ",predict_money)
+        print("roi of predict: ",round((predict_money-principle)/principle*100,2),"%")
+        print("ans_money: ",ans_money)
+        print("roi of ans: ", round((ans_money-principle)/principle*100,2),"%\n")
+    def stable_roi(self):
         '''
         利用預測的數字如果為正，依照預測的數字比例來進行購買股票以1000為基準乘以(1+預測數字)
         而realmoney則為利用y_test的值去判斷是否依照比例進行購買
@@ -41,12 +60,12 @@ class Evaluate:
         money = round((( get_from_predict/predict_cost )*100) , 2)
         print('roi with predict:', money, '%')
         money = round((( get_from_real/real_cost )*100) , 2)
-        print('roi with answer:',money , '%')
+        print('roi with answer:',money , '%\n')
 
     def nextweek_predict(self):
         newweek = self.predict[-1]
         newweek = round(newweek[0] , 2)
-        print("next week :",newweek)
+        print("next week :",newweek,"\n")
 
     def predictplt(self):
         plt.plot(self.y_test,color = 'red',label = 'real stock price')
@@ -58,16 +77,40 @@ class Evaluate:
         plt.show()
 
     def baseline(self):
-        amount = 1000
-        totalcost = 0
-        totalget = 0
-        for cost, price, get in zip(self.origin_x_test[1:], self.y_test[:-2], self.y_test[1:]):
-            if(float(price) > 0):
-                totalcost += (float(cost) * amount)
-                totalget += (float(get) * amount)
-        print("baseline cost: ",totalcost)
-        print("baseline earn: ",totalget)
-        money = round((( totalget/totalcost )*100), 2)
-        print("roi for baselinue: ", money, "%")
+        amount = 0
+        total = 1000000
+        principle = 1000000
+        for cost, last_price, real in zip(self.origin_x_test[1:], self.y_test[:-2], self.y_test[1:]):
+            if(float(last_price) > 0):
+                amount = math.floor(float(total)/float(cost))
+                total += (float(real) * amount)
+        print("principle: ",principle)
+        print("baseline earn: ",round(total - principle,2))
+        money = round((((total-principle)/principle )*100), 2)
+        print("roi for baselinue: ", money, "%\n")
 
+    '''預測誤差的百分比'''
+    def accurancy_rate(self):
+        acc_rate = 0.00;
+        zero_acount = 0;
+        for predict, real  in zip(self.predict, self.y_test):
+            if(float(real)==0):
+                zero_acount += 1
+                continue
+            #print(abs(float(predict)/float(real)))
+            acc_rate += abs(((float(predict)-float(real))/float(real)))
+        acc_rate /= (self.y_test.size)
+        acc_rate *= 100
+        print("accurate rate: ", round(acc_rate,2), "%\n")
 
+    '''預測正負的準確度'''
+    def trend_accurancy_rate(self):
+        trend_acc = 0.00
+        for predict, real in zip(self.predict, self.y_test):
+            if(float(predict)>0 and float(real)>0):
+                trend_acc+=1
+            elif(float(predict)<0 and float(real)<0):
+                trend_acc+=1
+        trend_acc /= self.y_test.size
+        trend_acc *= 100
+        print("trend_accurancy_rate:", round(trend_acc,2), "%\n")
