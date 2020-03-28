@@ -3,3 +3,7 @@ logs/
 .ipynb_checkpoints/
 merge/
 stockModel
+env/
+predictimg/
+*pycache*/
+*.un~
