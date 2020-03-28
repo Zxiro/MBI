@@ -1,1 +1,1 @@
-{"date": "2004-02-11", "features": ["close", "open", "high", "low", "volume", "k", "d", "rsv", "MA5", "MA20", "MA60"], "span": "d", "close_type": "close"}
+{"stock_num": "stock0050", "date": "2004-02-12", "features": ["close", "open", "high", "low", "volume", "k", "d", "rsv", "MA5", "MA20", "MA60"], "usa_index": ["dji", "sp"], "span": "d", "close_type": "close"}
