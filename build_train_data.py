@@ -77,7 +77,7 @@ def resha(x): #從 (幾周,每周幾天,特徵數)reshape成(天*周,特徵數) 
     return nptrain
 
 def save_np(x,y,open_money):
-    path = './StockData/stock0056.csv'
+    path = './StockData/stock0050.csv'
     #train_x, x_test,train_y, y_test = train_test_split(x,y,test_size=0.25,random_state=42)
     train_x = x[:-50]
     train_y = y[:-50]

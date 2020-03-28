@@ -1,3 +1,4 @@
+
 import os
 import sys
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
@@ -9,3 +10,6 @@ else:
     stock_symbol = sys.argv[1]
 evaluate = Evaluate(stock_symbol)
 evaluate.roi()
+evaluate.nextweek_predict()
+evaluate.predictplt()
+evaluate.baseline()
