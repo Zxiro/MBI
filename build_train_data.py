@@ -45,9 +45,16 @@ def add_d(data): # d (2/3昨日d 加 1/3 今日k)
         else:
             d.append(k[0])            
     return d
-
-def add_USA_index(data):
-    return 0
+    
+def drop_data(df, usa_index):
+    for index in usa_index:
+        tmp = df.columns.str.contains(index)
+        df = df[df.columns[~tmp]] #丟掉不需要的usa index
+    df = df.dropna()
+    print(df)
+    df.to_csv('/home/zxiro/MBI/feature/df.csv')
+    df = df.set_index('date').resample('w')
+    return df
 
 def resha(x): #從 (幾周,每周幾天,特徵數)reshape成(天*周,特徵數) ->(總天數,特徵數)
     nptrain = np.array(x)
@@ -87,16 +94,15 @@ def save_np(x,y,open_money,num):
     print(num, " opentestX  ", Npdata.shape) 
     print(Npdata)
 
-def generate_train(close_type, feature, data, usanum, name):
+def generate_train(feature, data, usanum, name):
     train_x = []
     train_y = []
     tmp = []
     open_money = []
     for _, span_data in data:
         if len(span_data) == 5: #Decide the way seperate the stock data
-            #print(span_data)
-            index = span_data.iloc[ :,-5*usanum:].values.tolist()#usa index
-            xlist = span_data.loc[:, feature].values.tolist()#select feature
+            index = span_data.iloc[ :,-5*usanum:].values.tolist() #usa index
+            xlist = span_data.loc[:, feature].values.tolist() #select feature
             for i in range(0,5):
                 tmp.append(xlist[i]+index[i])
             train_x.append(tmp)
@@ -131,20 +137,15 @@ def load_csv(num):
 
 with open("./config.json",'r') as load_f:
     config = json.load(load_f)
+
 stock_num = config['stock_num']
 feature = config['features']
 span = config['span']
 close_type = config['close_type']
 usa_index = config['usa_index'] #Unwanted USA index
 
-USA = load_csv(stock_num) #df 股票資料  USA 股票加上USA index
-add_features(USA[0])
-df = pd.concat(USA, axis=1).reindex(USA[0].index) 
-for index in usa_index:
-    tmp = df.columns.str.contains(index)
-    df = df[df.columns[~tmp]] #丟掉不需要的usa index
-df = df.dropna()
-print(df)
-df.to_csv('/home/zxiro/MBI/feature/df.csv')
-df = df.set_index('date').resample('w')
-generate_train(close_type, feature, df, len(usa_index),stock_num)
+total_data = load_csv(stock_num) #df 股票資料  USA 股票加上USA index
+add_features(total_data[0]) #在該個股上添加特徵
+df = pd.concat(total_data, axis=1).reindex(total_data[0].index) #將美國指數concat到個股上
+df = drop_data(df, usa_index)
+generate_train(feature, df, len(usa_index), stock_num)
