@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import datetime #convert data to datetime64(ns)
 import glob
 import talib
