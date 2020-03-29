@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import datetime #convert data to datetime64(ns)
 import glob
 import talib
@@ -57,39 +56,45 @@ def drop_data(df, usa_index):
     df = df.set_index('date').resample('w')
     return df
 
-def resha(x): #從 (幾周,每周幾天,特徵數)reshape成(天*周,特徵數) ->(總天數,特徵數)
+def resha(x): #從 (幾周,每周幾天,特徵數)reshape成(幾周*一周天數,特徵數) ->(總天數,特徵數)
     nptrain = np.array(x)
-    nptrain = np.reshape(nptrain,(nptrain.shape[0]*nptrain.shape[1], nptrain.shape[2]))
+    print(nptrain.shape)
+    #print(nptrain.shape[0], nptrain.shape[1], nptrain.shape[2])
+    nptrain = np.reshape(nptrain,(nptrain.shape[1]*nptrain.shape[0], nptrain.shape[2]))
+    print(nptrain.shape[0], nptrain.shape[1])
     return nptrain
 
 def save_np(x,y,open_money,num):
-    path = './StockData/'+num+'csv'
-    #train_x, x_test,train_y, y_test = train_test_split(x,y,test_size=0.25,random_state=42)
     train_x = x[:-50]
     train_y = y[:-50]
-    x_test = x[-50:]
+    x_test = x[-50:] #後50筆
     y_test = y[-50:]
     open_money = open_money[-50:]
     stock_name = num
     scaler = preprocessing.StandardScaler() #初始化scaler
     scaler = scaler.fit(resha(train_x))  #  標準化後的數據
     train_x = scaler.transform(resha(train_x))
+
     Npdata = train_x
     np.save(os.path.join('./StockData/TrainingData/', 'NormtrainingX_' + stock_name), Npdata)
     print(num ," trainX  ", Npdata.shape)
     print(Npdata)
+
     Npdata = scaler.transform(resha(x_test))# normalize x_test with scale of train_x
     np.save(os.path.join('./StockData/TrainingData/', 'NormtestingX_' + stock_name), Npdata)
     print(num, " testX  ", Npdata.shape) 
     print(Npdata)
+
     Npdata = np.array(train_y)
     np.save(os.path.join('./StockData/TrainingData/', 'trainingY_' + stock_name), Npdata)
     print(num, " trainY  ", Npdata.shape) 
     print(Npdata)
+
     Npdata = np.array(y_test)
     np.save(os.path.join('./StockData/TrainingData/', 'testingY_' + stock_name), Npdata)
     print(num, " testY  ", Npdata.shape) 
     print(Npdata)
+
     Npdata = np.array(open_money)
     np.save(os.path.join('./StockData/TrainingData/', 'opentestingX_' + stock_name), Npdata)
     print(num, " opentestX  ", Npdata.shape) 
@@ -105,16 +110,16 @@ def generate_train(feature, data, usanum, name):
             index = span_data.iloc[ :,-5*usanum:].values.tolist() #usa index
             xlist = span_data.loc[:, feature].values.tolist() #select feature
             for i in range(0,5):
-                tmp.append(xlist[i]+index[i])
-            train_x.append(tmp)
+                xlist[i] = (xlist[i]+index[i])
+            train_x.append(xlist)
             mon_open = span_data['open'][0]
             fri_close = span_data['close'][4]
-            open_money.append(((mon_open)))
-            train_y.append((( fri_close - mon_open)))
+            open_money.append((mon_open))
+            train_y.append(( fri_close - mon_open))
         else:
             continue
-    #print(train_x)
-    #print(train_y)
+    #print(len(train_x))
+    #print(len(train_y))
     save_np(train_x,train_y,open_money, name)
 
 def add_features(df):
