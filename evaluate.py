@@ -19,18 +19,21 @@ class Evaluate:
         ans_money = 1000000
         amount = 0
         for predict, real, open_money in zip(self.predict, self.y_test, self.origin_x_test):
-            if float(predict) > 0:
-                amount = float(predict_money)/float(open_money)
+            if predict > 0:
+                amount = predict_money/open_money
                 amount = math.floor(amount)
-                predict_money += (amount * float(real))
-            if float(real) > 0:
-                amount = float(ans_money)/float(open_money)
+                predict_money += (amount * real)
+            print(predict)
+            print(real)
+            print(type(real))
+            if real > 0:
+                amount = ans_money/open_money
                 amount = math.floor(amount)
-                ans_money += (amount * float(real))
+                ans_money += (amount * real)
         predict_money = round(predict_money,2)
-        print("predict_money: ",predict_money)
+        print("predict_money: ",round(predict_money,2))
         print("roi of predict: ",round((predict_money-principle)/principle*100,2),"%")
-        print("ans_money: ",ans_money)
+        print("ans_money: ",round(ans_money,2))
         print("roi of ans: ", round((ans_money-principle)/principle*100,2),"%\n")
     def stable_roi(self):
         '''
@@ -46,11 +49,11 @@ class Evaluate:
         predict = self.predict
         for predict_money , real_money , open_money in zip(predict , self.y_test ,self.origin_x_test):
             if predict_money > 0:
-                get_from_predict += int( amount)  * float(real_money)
-                predict_cost += float(open_money) * int( amount )
-            if float(real_money) > 0 :
-                get_from_real += int( amount ) * float(real_money)
-                real_cost += float(open_money)*1000
+                get_from_predict += amount  * real_money
+                predict_cost += open_money * amount
+            if real_money > 0 :
+                get_from_real += amount * real_money
+                real_cost += open_money*1000
                 #print(get_from_real)
                 #get_from_predict = round( get_from_predict[0] , 2 )
                 #get_from_real = round( get_from_real , 2 )
@@ -81,9 +84,9 @@ class Evaluate:
         total = 1000000
         principle = 1000000
         for cost, last_price, real in zip(self.origin_x_test[1:], self.y_test[:-2], self.y_test[1:]):
-            if(float(last_price) > 0):
-                amount = math.floor(float(total)/float(cost))
-                total += (float(real) * amount)
+            if(last_price > 0):
+                amount = math.floor(total/cost)
+                total += (real * amount)
         print("principle: ",principle)
         print("baseline earn: ",round(total - principle,2))
         money = round((((total-principle)/principle )*100), 2)
@@ -94,22 +97,23 @@ class Evaluate:
         acc_rate = 0.00;
         zero_acount = 0;
         for predict, real  in zip(self.predict, self.y_test):
-            if(float(real)==0):
+            if(real == 0):
                 zero_acount += 1
                 continue
-            #print(abs(float(predict)/float(real)))
-            acc_rate += abs(((float(predict)-float(real))/float(real)))
+            acc_rate += abs(((predict[0]-real)/real))
+
         acc_rate /= (self.y_test.size)
         acc_rate *= 100
+        print(type(acc_rate))
         print("accurate rate: ", round(acc_rate,2), "%\n")
 
     '''預測正負的準確度'''
     def trend_accurancy_rate(self):
         trend_acc = 0.00
-        for predict, real in zip(self.predict, self.y_test):
-            if(float(predict)>0 and float(real)>0):
+        for predict, real in zip(self.predict[0], self.y_test):
+            if(predict>0 and real>0):
                 trend_acc+=1
-            elif(float(predict)<0 and float(real)<0):
+            elif(predict<0 and real<0):
                 trend_acc+=1
         trend_acc /= self.y_test.size
         trend_acc *= 100

@@ -22,6 +22,6 @@ for key in usa_dict:
     df = adjust_df(df)
     df.rename(columns = { "Open":usa_dict[key]+"_open", "High":usa_dict[key]+"_high", "Low":usa_dict[key]+"_low", "Close":usa_dict[key]+"_close", "Adj Close":usa_dict[key]+"_adj_close", "Volume":usa_dict[key]+"_volume"}, inplace = True)
     print(df)
-    df.to_csv('/home/zxiro/MBI/usa_stock_data/'+usa_dict[key]+'.csv')
+    df.to_csv('./usa_stock_data/'+usa_dict[key]+'.csv')
 
 print("Fetch completed")

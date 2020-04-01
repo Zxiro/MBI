@@ -57,8 +57,7 @@ def drop_data(df, usa_index):
         df = df[df.columns[~tmp]] #丟掉不需要的usa index
     df = df.dropna()
     print(df)
-    df = df.set_index('date').resample('w')
-    return df
+    df.to_csv('./feature/df.csv')
 
 def resha(x): #從 (幾周,每周幾天,特徵數)reshape成(幾周*一周天數,特徵數) ->(總天數,特徵數)
     nptrain = np.array(x)
