@@ -1,19 +1,24 @@
 import datetime #convert data to datetime64(ns)
 import glob
-import talib
 import os
 import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-#import mplfinance as mpf
 from statistics import mean
 from sklearn import preprocessing
+from talib import abstract
 
 def add_MA(data):
     for ma in ['5', '20', '30', '60']:
         data["MA"+ ma] = data.close.rolling(int(ma)).mean()
 
+def add_MACD(data):
+    tmp_df= abstract.MACD(data)
+    data['MACD'] = tmp_df[tmp_df.columns[0]].values.tolist()
+    data['MACDsignal'] = tmp_df[tmp_df.columns[1]].values.tolist()
+    data['MACDhist'] = tmp_df[tmp_df.columns[2]].values.tolist()
+   
 def add_rsv(data): # rsv (今天收盤-最近9天的最低價)/(最近9天的最高價-最近9天的最低價)
     rsv=[]
     close=data.loc[ : ,'close'].values.tolist() 
@@ -45,26 +50,23 @@ def add_d(data): # d (2/3昨日d 加 1/3 今日k)
         else:
             d.append(k[0])            
     return d
-    
+
 def drop_data(df, usa_index):
     for index in usa_index:
         tmp = df.columns.str.contains(index)
         df = df[df.columns[~tmp]] #丟掉不需要的usa index
     df = df.dropna()
     print(df)
-    df.to_csv('/home/zxiro/MBI/feature/df.csv')
     df = df.set_index('date').resample('w')
     return df
 
 def resha(x): #從 (幾周,每周幾天,特徵數)reshape成(幾周*一周天數,特徵數) ->(總天數,特徵數)
     nptrain = np.array(x)
     print(nptrain.shape)
-    #print(nptrain.shape[0], nptrain.shape[1], nptrain.shape[2])
-    nptrain = np.reshape(nptrain,(nptrain.shape[1]*nptrain.shape[0], nptrain.shape[2]))
-    print(nptrain.shape[0], nptrain.shape[1])
+    nptrain = np.reshape(nptrain,(nptrain.shape[0] * nptrain.shape[1], nptrain.shape[2]))
     return nptrain
 
-def save_np(x,y,open_money,num):
+def save_np(x, y, open_money, num):
     train_x = x[:-50]
     train_y = y[:-50]
     x_test = x[-50:] #後50筆
@@ -103,23 +105,20 @@ def save_np(x,y,open_money,num):
 def generate_train(feature, data, usanum, name):
     train_x = []
     train_y = []
-    tmp = []
     open_money = []
     for _, span_data in data:
         if len(span_data) == 5: #Decide the way seperate the stock data
-            index = span_data.iloc[ :,-5*usanum:].values.tolist() #usa index
+            index = span_data.iloc[:, -5*usanum:].values.tolist() #usa index
             xlist = span_data.loc[:, feature].values.tolist() #select feature
             for i in range(0,5):
                 xlist[i] = (xlist[i]+index[i])
             train_x.append(xlist)
             mon_open = span_data['open'][0]
             fri_close = span_data['close'][4]
-            open_money.append((mon_open))
-            train_y.append(( fri_close - mon_open))
+            open_money.append(mon_open)
+            train_y.append(fri_close - mon_open)
         else:
             continue
-    #print(len(train_x))
-    #print(len(train_y))
     save_np(train_x,train_y,open_money, name)
 
 def add_features(df):
@@ -127,17 +126,17 @@ def add_features(df):
     df['k'] = add_k(df)
     df['d'] = add_d(df)
     add_MA(df)
+    add_MACD(df)
     
-
 def load_csv(num):
     stock_data = pd.DataFrame(pd.read_csv('./StockData/'+num+'.csv'))
     stock_data['date'] = pd.to_datetime(stock_data['date'])
+    stock_data = stock_data.drop([0], axis=0)  #drop 第一天 因為stockdata 有16年跳到17年的問題
+    stock_data = stock_data.reset_index(drop=True)
     index_list = glob.glob(r"./usa_stock_data/*.csv")
     for i in range(0,4):
         index_list[i] = pd.DataFrame(pd.read_csv(index_list[i]))
         index_list[i] = index_list[i].drop(index_list[i].columns[0], axis=1)
-    stock_data = stock_data.drop([0], axis=0)  #drop 第一天 因為stockdata 有16年跳到17年的問題
-    stock_data = stock_data.reset_index(drop=True)
     index_list.insert(0, stock_data)
     return index_list
 
