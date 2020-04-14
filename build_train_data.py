@@ -7,6 +7,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from statistics import mean
 from sklearn import preprocessing
+from build_config import index_dic
+from build_config import stock_dic
 from talib import abstract
 
 def add_MA(data):
@@ -24,22 +26,22 @@ def add_rsv(data): # rsv (今天收盤-最近9天的最低價)/(最近9天的最
     close=data.loc[ : ,'close'].values.tolist() 
     for i in range(0,len(close)):
         if i>=8:
-            low=min(data.loc[ i-8 : i ,'low'].values.tolist())
-            high=max(data.loc[ i-8 : i ,'high'].values.tolist()) 
+            low = min(data.loc[ i-8 : i ,'low'].values.tolist())
+            high = max(data.loc[ i-8 : i ,'high'].values.tolist())
             rsv.append(((close[i]-low)/(high-low))*100)
         else:
-            rsv.append(0) 
-    return rsv
+            rsv.append(0)
+    data['rsv'] = rsv
 
 def add_k(data):  # k (2/3昨日K 加 1/3 今日rsv)
-    k=[] 
+    k=[]
     rsv=data.loc[ : ,'rsv'].values.tolist() 
     for i in range(0,len(rsv)):
         if i>=1:
             k.append(((2/3)*k[i-1])+((1/3)*rsv[i]))
         else:
-            k.append(rsv[0])       
-    return k
+            k.append(rsv[0])  
+    data['k'] = k
 
 def add_d(data): # d (2/3昨日d 加 1/3 今日k)
     d=[]
@@ -48,17 +50,8 @@ def add_d(data): # d (2/3昨日d 加 1/3 今日k)
         if i>=1:
             d.append(((2/3)*d[i-1])+((1/3)*k[i]))
         else:
-            d.append(k[0])            
-    return d
-
-def drop_data(df, usa_index):
-    for index in usa_index:
-        tmp = df.columns.str.contains(index)
-        df = df[df.columns[~tmp]] #丟掉不需要的usa index
-    df = df.dropna()
-    print(df)
-    df = df.set_index('date').resample('w')
-    return df
+            d.append(k[0])
+    data['d'] = d
 
 def resha(x): #從 (幾周,每周幾天,特徵數)reshape成(幾周*一周天數,特徵數) ->(總天數,特徵數)
     nptrain = np.array(x)
@@ -84,35 +77,31 @@ def save_np(x, y, open_money, num):
 
     Npdata = scaler.transform(resha(x_test))# normalize x_test with scale of train_x
     np.save(os.path.join('./StockData/TrainingData/', 'NormtestingX_' + stock_name), Npdata)
-    print(num, " testX  ", Npdata.shape) 
+    print(num, " testX  ", Npdata.shape)
     print(Npdata)
 
     Npdata = np.array(train_y)
     np.save(os.path.join('./StockData/TrainingData/', 'trainingY_' + stock_name), Npdata)
-    print(num, " trainY  ", Npdata.shape) 
+    print(num, " trainY  ", Npdata.shape)
     print(Npdata)
 
     Npdata = np.array(y_test)
     np.save(os.path.join('./StockData/TrainingData/', 'testingY_' + stock_name), Npdata)
-    print(num, " testY  ", Npdata.shape) 
+    print(num, " testY  ", Npdata.shape)
     print(Npdata)
 
     Npdata = np.array(open_money)
     np.save(os.path.join('./StockData/TrainingData/', 'opentestingX_' + stock_name), Npdata)
-    print(num, " opentestX  ", Npdata.shape) 
+    print(num, " opentestX  ", Npdata.shape)
     print(Npdata)
 
-def generate_train(feature, data, usanum, name):
+def generate_train(feature, data, name):
     train_x = []
     train_y = []
     open_money = []
     for _, span_data in data:
         if len(span_data) == 5: #Decide the way seperate the stock data
-            index = span_data.iloc[:, -5*usanum:].values.tolist() #usa index
-            xlist = span_data.loc[:, feature].values.tolist() #select feature
-            for i in range(0,5):
-                xlist[i] = (xlist[i]+index[i])
-            train_x.append(xlist)
+            train_x.append(span_data.loc[:].values.tolist()) #append all feature list
             mon_open = span_data['open'][0]
             fri_close = span_data['close'][4]
             open_money.append(mon_open)
@@ -122,35 +111,39 @@ def generate_train(feature, data, usanum, name):
     save_np(train_x,train_y,open_money, name)
 
 def add_features(df):
-    df['rsv'] = add_rsv(df)
-    df['k'] = add_k(df)
-    df['d'] = add_d(df)
+    add_rsv(df)
+    add_k(df)
+    add_d(df)
     add_MA(df)
     add_MACD(df)
     
 def load_csv(num):
+    index_list = []
     stock_data = pd.DataFrame(pd.read_csv('./StockData/'+num+'.csv'))
+    index_data = pd.DataFrame(pd.read_csv("./usa_stock_data/usa_index.csv"))
     stock_data['date'] = pd.to_datetime(stock_data['date'])
-    stock_data = stock_data.drop([0], axis=0)  #drop 第一天 因為stockdata 有16年跳到17年的問題
-    stock_data = stock_data.reset_index(drop=True)
-    index_list = glob.glob(r"./usa_stock_data/*.csv")
-    for i in range(0,4):
-        index_list[i] = pd.DataFrame(pd.read_csv(index_list[i]))
-        index_list[i] = index_list[i].drop(index_list[i].columns[0], axis=1)
-    index_list.insert(0, stock_data)
+    stock_data.drop([0], axis = 0, inplace = True)  #drop 第一天 因為stockdata 有16年跳到17年的問題
+    index_data.drop(index_data.columns[0], axis = 1, inplace = True ) #drop usa_index 的 date
+    stock_data = stock_data.reset_index(drop = True)
+    index_list.append(stock_data)
+    index_list.append(index_data)
     return index_list
 
-with open("./config.json",'r') as load_f:
-    config = json.load(load_f)
+def feature_filter(df, feature):
+    df = df[df.columns[df.columns.isin(feature)]] #篩選出需要的feature
+    return df
 
-stock_num = config['stock_num']
-feature = config['features']
-span = config['span']
-close_type = config['close_type']
-usa_index = config['usa_index'] #Unwanted USA index
+stock_num = stock_dic['stock_num']
+feature = stock_dic['features']
+span = stock_dic['span']
+close_type = stock_dic['close_type']
 
-total_data = load_csv(stock_num) #df 股票資料  USA 股票加上USA index
+total_data = load_csv(stock_num) #個股[0], USA index[1]
 add_features(total_data[0]) #在該個股上添加特徵
-df = pd.concat(total_data, axis=1).reindex(total_data[0].index) #將美國指數concat到個股上
-df = drop_data(df, usa_index)
-generate_train(feature, df, len(usa_index), stock_num)
+df = feature_filter(total_data[0], feature) #個股留下需要的feature
+df = pd.concat(total_data, axis = 1).reindex(total_data[0].index) #將美國指數concat到個股上
+df = df.dropna()
+print(df)
+df.to_csv('/home/zxiro/MBI/train.csv')
+df = df.set_index('date').resample('w')
+generate_train(feature, df, stock_num)
