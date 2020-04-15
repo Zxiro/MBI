@@ -9,9 +9,10 @@ if len(sys.argv) < 2 :
 else:
     stock_symbol = sys.argv[1]
 evaluate = Evaluate(stock_symbol)
-evaluate.roi()
-evaluate.nextweek_predict()
+evaluate.roi("predict")
+evaluate.roi("ans")
+evaluate.roi("baseline")
 evaluate.predictplt()
-evaluate.baseline()
+evaluate.nextweek_predict()
 evaluate.accurancy_rate()
 evaluate.trend_accurancy_rate()

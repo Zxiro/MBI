@@ -20,7 +20,7 @@ def add_MACD(data):
     data['MACD'] = tmp_df[tmp_df.columns[0]].values.tolist()
     data['MACDsignal'] = tmp_df[tmp_df.columns[1]].values.tolist()
     data['MACDhist'] = tmp_df[tmp_df.columns[2]].values.tolist()
-   
+    
 def add_rsv(data): # rsv (今天收盤-最近9天的最低價)/(最近9天的最高價-最近9天的最低價)
     rsv=[]
     close=data.loc[ : ,'close'].values.tolist() 
