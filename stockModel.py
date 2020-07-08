@@ -13,12 +13,15 @@ from tensorflow.keras import optimizers
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.callbacks import TensorBoard
 import matplotlib.pyplot as plt
-
-stock = input("enter stock number:")
-x_train = np.load('./StockData/TrainingData/NormtrainingX_stock'+stock+'.npy')
-y_train = np.load('./StockData/TrainingData/trainingY_stock'+stock+'.npy')
-x_test = np.load('./StockData/TrainingData/NormtestingX_stock'+stock+'.npy')
-y_test = np.load('./StockData/TrainingData/testingY_stock'+stock+'.npy')
+import sys
+if len(sys.argv) < 2:
+    stock_symbol = input('enter stock number:')
+else:
+    stock_symbol = sys.argv[1]
+x_train = np.load('./StockData/TrainingData/NormtrainingX_'+stock_symbol+'.npy')
+y_train = np.load('./StockData/TrainingData/trainingY_'+stock_symbol+'.npy')
+x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock_symbol+'.npy')
+y_test = np.load('./StockData/TrainingData/testingY_'+stock_symbol+'.npy')
 #x_train = np.where(np.isnan(x_train), 0, x_train)
 feature = x_train.shape[1]
 #y_train = np.where(np.isnan(y_train), 0, y_train)
@@ -63,4 +66,4 @@ tbCallBack = TensorBoard(log_dir='./logs',  # log 目录
 model.fit(x_train,y_train, epochs=1250, batch_size=20, callbacks=[callback,tbCallBack],validation_split=0.2)
 #model.fit(x_train,y_train, epochs=1000, batch_size=20, callbacks=[callback],validation_split=0.2)
 
-model.save('./stockModel/stockmodel_'+stock+'.h5')
+model.save('./stockModel/stockmodel_'+stock_symbol+'.h5')

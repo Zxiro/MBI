@@ -6,9 +6,9 @@ from tensorflow.keras.models import load_model
 class Evaluate:
     def __init__(self,stock):
         '''引入資料'''
-        self.x_test = np.load('./StockData/TrainingData/NormtestingX_stock'+stock+'.npy')
-        self.y_test = np.load('./StockData/TrainingData/testingY_stock'+stock+'.npy')
-        self.origin_x_test = np.load('./StockData/TrainingData/opentestingX_stock'+stock+'.npy') #每個禮拜一的開盤價
+        self.x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock+'.npy')
+        self.y_test = np.load('./StockData/TrainingData/testingY_'+stock+'.npy')
+        self.origin_x_test = np.load('./StockData/TrainingData/opentestingX_'+stock+'.npy') #每個禮拜一的開盤價
         self.model = load_model('./stockModel/stockmodel_'+stock+'.h5') #引入訓練完model
         self.x_test = self.x_test.reshape(-1,5,self.x_test.shape[1])
         self.predict = self.model.predict(self.x_test)
@@ -38,6 +38,7 @@ class Evaluate:
         print("funds: ", round(funds, 2))
         print("income: ", round(funds-principle, 2))
         print("roi of ", method, ": ", round((funds-principle)/principle*100, 2), "%\n")
+        return round((funds-principle)/principle*100,2)
 
 
     def nextweek_predict(self):
@@ -79,3 +80,4 @@ class Evaluate:
         trend_acc /= self.y_test.size
         trend_acc *= 100
         print("trend_accurancy_rate:", round(trend_acc,2), "%\n")
+        return round(trend_acc,2)

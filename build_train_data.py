@@ -11,6 +11,9 @@ from build_config import index_dic
 from build_config import stock_dic
 from talib import abstract
 
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]=""
+
 def add_MA(data):
     for ma in ['5', '20', '30', '60']:
         data["MA"+ ma] = data.close.rolling(int(ma)).mean()
@@ -72,6 +75,7 @@ def save_np(x, y, open_money, num):
 
     Npdata = train_x
     np.save(os.path.join('./StockData/TrainingData/', 'NormtrainingX_' + stock_name), Npdata)
+    print(stock_name)
     print(num ," trainX  ", Npdata.shape)
     print(Npdata)
 
@@ -116,34 +120,49 @@ def add_features(df):
     add_d(df)
     add_MA(df)
     add_MACD(df)
-    
-def load_csv(num):
+
+def load_csv(num,start,end):
     index_list = []
-    stock_data = pd.DataFrame(pd.read_csv('./StockData/'+num+'.csv'))
+    stock_data = pd.DataFrame(pd.read_csv('./StockData/stock'+num+'.csv'))
     index_data = pd.DataFrame(pd.read_csv("./usa_stock_data/usa_index.csv"))
     stock_data['date'] = pd.to_datetime(stock_data['date'])
-    stock_data.drop([0], axis = 0, inplace = True)  #drop 第一天 因為stockdata 有16年跳到17年的問題
+    start_date = pd.to_datetime(start)
+    end_date = pd.to_datetime(end)
+    print(stock_data["date"][0])
+    count=0; 
+    for i in stock_data["date"]:
+        if( start_date > i or end_date < i):
+            stock_data.drop([count],axis = 0,inplace = True)
+        count =count + 1
+    
+    '''if(stock_data[0].isnull()):
+        stock_data.drop([0], axis = 0, inplace = True)  #drop 第一天 因為stockdata 有16年跳到17年的問題
+    '''
     index_data.drop(index_data.columns[0], axis = 1, inplace = True ) #drop usa_index 的 date
     stock_data = stock_data.reset_index(drop = True)
     index_list.append(stock_data)
     index_list.append(index_data)
     return index_list
 
-def feature_filter(df, feature):
+def feature_filter(df, fcktesteature):
     df = df[df.columns[df.columns.isin(feature)]] #篩選出需要的feature
     return df
 
-stock_num = stock_dic['stock_num']
-feature = stock_dic['features']
-span = stock_dic['span']
-close_type = stock_dic['close_type']
+if '__main__' == __name__:
 
-total_data = load_csv(stock_num) #個股[0], USA index[1]
-add_features(total_data[0]) #在該個股上添加特徵
-df = feature_filter(total_data[0], feature) #個股留下需要的feature
-df = pd.concat(total_data, axis = 1).reindex(total_data[0].index) #將美國指數concat到個股上
-df = df.dropna()
-print(df)
-df.to_csv('/home/zxiro/MBI/train.csv')
-df = df.set_index('date').resample('w')
-generate_train(feature, df, stock_num)
+    stock_num = stock_dic['stock_num']
+    feature = stock_dic['features']
+    span = stock_dic['span']
+    close_type = stock_dic['close_type']
+    start_date = stock_dic['date']
+    end_date = stock_dic['end_date']
+
+    total_data = load_csv(stock_num,start_date,end_date) #個股[0], USA index[1]
+    add_features(total_data[0]) #在該個股上添加特徵
+    df = feature_filter(total_data[0], feature) #個股留下需要的feature
+    df = pd.concat(total_data, axis = 1).reindex(total_data[0].index) #將美國指數concat到個股上
+    df = df.dropna()
+    print(df)
+    df.to_csv('./train.csv')
+    df = df.set_index('date').resample('w')
+    generate_train(feature, df, stock_num)

@@ -15,7 +15,7 @@ yf.pdr_override()
 usa_dict = index_dic['index']
 features = index_dic['features']
 start = stock_dic['date']
-end = dt.datetime.now()
+end = stock_dic['end_date']
 index_list = []
 for key in usa_dict:
     df = pd.DataFrame(web.get_data_yahoo(key, start, end))
@@ -24,5 +24,5 @@ for key in usa_dict:
     index_list.append(df)
 df = pd.concat(index_list, axis=1)
 print(df)
-df.to_csv('/home/zxiro/MBI/usa_stock_data/usa_index.csv')
+df.to_csv('./usa_stock_data/usa_index.csv')
 print("Fetch completed")
