@@ -10,6 +10,6 @@ stock_dic = {
 }
 
 index_dic = {
-    'index': {'^GSPC':'sp'},#'^SOX':'sox', '^IXIC':'nas''^DJI':'dji',
+    'index': {'^SOX':'sox'},#'^SOX':'sox', '^IXIC':'nas''^DJI':'dji' 'GSPC':'sp',
     'features':['Close', 'Open', 'High', 'Low', 'Volume'],
 }

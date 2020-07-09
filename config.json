@@ -1,1 +1,6 @@
-{"stock_num": "stock0050", "date": "2004-02-12", "end_date": "2020-2-2", "features": ["date", "close", "open", "high", "low", "volume", "k", "d", "rsv", "MA5", "MA30", "MA60", "MACD", "MACDsignal", "MACDhist"], "span": ["d", "w", "m"], "close_type": "close"}
+
+{" stock_num" : "stock0050", "date": "2004-02-12", "end_date": "2020-2-2", "features": ["date", "close", "open", "high", "low", "volume", "k", "d", "rsv", "MA5", "MA30", "MA60", "MACD", "MACDsignal", "MACDhist"], "span": ["d", "w", "m"], "close_type": "close"}
+
+
+
+

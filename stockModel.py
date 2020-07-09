@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense,LSTM,Dropout
 #from tensorflow.keras.layers.normalization import BatchNormalization
@@ -22,18 +23,16 @@ x_train = np.load('./StockData/TrainingData/NormtrainingX_'+stock_symbol+'.npy')
 y_train = np.load('./StockData/TrainingData/trainingY_'+stock_symbol+'.npy')
 x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock_symbol+'.npy')
 y_test = np.load('./StockData/TrainingData/testingY_'+stock_symbol+'.npy')
-#x_train = np.where(np.isnan(x_train), 0, x_train)
+x_train = np.where(np.isnan(x_train), 0, x_train)
 feature = x_train.shape[1]
 #y_train = np.where(np.isnan(y_train), 0, y_train)
 x_train =x_train.reshape(-1,5,feature)
 x_test = x_test.reshape(-1,5,feature)
-#x_train,x_test,y_train,y_test = train_test_split(x_train,y_train,test_size=0.25,random_state=42)
 
 print(x_train.shape)
 print(x_test.shape)
 print(y_train.shape)
-#print(x_train[1])
-#print(y_train)
+print(y_test.shape)
 
 model = Sequential()
 print(x_train.shape[2])
@@ -41,10 +40,7 @@ model.add(LSTM(50,input_shape=(5,x_train.shape[2]),return_sequences = True))
 model.add(Dropout(0.2))
 model.add(LSTM(50,return_sequences = True))
 model.add(Dropout(0.2))
-model.add(LSTM(50,return_sequences =False))
-#model.add(Dropout(0.2))
-#model.add(LSTM(10))
-#model.add(Dropout(0.2))
+model.add(LSTM(50,return_sequences = False))
 model.add(Dense(1))
 
 sgd = optimizers.Adam(lr=0.001,beta_1=0.9, beta_2=0.999, amsgrad=False)
@@ -64,6 +60,5 @@ tbCallBack = TensorBoard(log_dir='./logs',  # log 目录
                  embeddings_layer_names=None,
                  embeddings_metadata=None)
 model.fit(x_train,y_train, epochs=1250, batch_size=20, callbacks=[callback,tbCallBack],validation_split=0.2)
-#model.fit(x_train,y_train, epochs=1000, batch_size=20, callbacks=[callback],validation_split=0.2)
 
 model.save('./stockModel/stockmodel_'+stock_symbol+'.h5')
