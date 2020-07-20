@@ -34,6 +34,11 @@ load_csv('0050')
 
 finput = open("ten_year_evaluate.csv","w")
 
+finput.write("year"+",")
+finput.write("roi of predict"+",")
+finput.write("roi of ans"+",")
+finput.write("roi of baseline,")
+finput.write("trend_accurancy_rate"+"\n")
 print(number_of_data)
 #number_of_data =1
 for i in range(number_of_data):
@@ -70,14 +75,15 @@ for i in range(number_of_data):
     fout.close()
 
     os.system("python3 build_train_data.py")
-    os.system("python3 stockModel.py 0050")
+    #os.system("python3 stockModel.py 0050")
 
 
     stock_symbol = "0050"
 
     evaluate = Evaluate(stock_symbol)
-    finput.write(start_date+"~"+end+"\n")
-    finput.write("roi of predict: "+str(evaluate.roi("predict"))+"%\n")
-    finput.write("roi of ans: "+str(evaluate.roi("ans"))+"%\n")
-    finput.write("roi of baseline: "+str(evaluate.roi("baseline"))+"%\n")
-    finput.write("trend_accurancy_rate: "+str(evaluate.trend_accurancy_rate())+"%\n")
+    finput.write(start_date+"~"+end+",")
+    #finput.write(str(evaluate.roi("predict"))+"%,")
+    finput.write(str(evaluate.roi("ans"))+"%,")
+    #finput.write(str(evaluate.roi("baseline"))+"%,")
+    #finput.write(str(evaluate.trend_accurancy_rate())+"%\n")
+    finput.write("\n");
