@@ -3,6 +3,7 @@ import math
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import load_model
+from tranformer import TokenAnd
 class Evaluate:
     def __init__(self, stock):
         '''引入資料'''
@@ -10,7 +11,8 @@ class Evaluate:
         self.x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock+'.npy')
         self.y_test = np.load('./StockData/TrainingData/testingY_'+stock+'.npy')
         self.origin_x_test = np.load('./StockData/TrainingData/opentestingX_'+stock+'.npy') #每個禮拜一的開盤價
-        self.model = load_model('./stockModel/stockmodel_'+stock+'.h5') #引入訓練完model
+        #self.model = load_model('./stockModel/stockmodel_'+stock+'.h5') #引入訓練完model
+        self.model = load_model('./stockModel/transformer_'+stock+'.h5') #引入訓練完model
         self.x_test = self.x_test.reshape(-1,day,self.x_test.shape[1])
         self.predict = self.model.predict(self.x_test)
         self.stock = stock
