@@ -18,16 +18,16 @@ if len(sys.argv) < 2:
     stock_symbol = input('enter stock number:')
 else:
     stock_symbol = sys.argv[1]
-day = 15
+day = 5
+
 x_train = np.load('./StockData/TrainingData/NormtrainingX_'+stock_symbol+'.npy')
 y_train = np.load('./StockData/TrainingData/trainingY_'+stock_symbol+'.npy')
 x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock_symbol+'.npy')
 y_test = np.load('./StockData/TrainingData/testingY_'+stock_symbol+'.npy')
 x_train = np.where(np.isnan(x_train), 0, x_train)
-feature = x_train.shape[1]
+feature = x_train.shape[-1]
 x_train =x_train.reshape(-1,day,feature)
 x_test = x_test.reshape(-1,day,feature)
-
 print(x_train.shape)
 print(x_test.shape)
 print(y_train.shape)
@@ -35,8 +35,9 @@ print(y_test.shape)
 
 model = Sequential()
 print(x_train.shape[2])
+<<<<<<< Updated upstream
 model.add(LSTM(50,input_shape=(day, x_train.shape[2]),return_sequences = True))
-model.add(Dropout(0.2))
+odel.add(Dropout(0.2))
 model.add(LSTM(50,return_sequences = True))
 model.add(Dropout(0.2))
 model.add(LSTM(50,return_sequences = False))
@@ -58,7 +59,6 @@ tbCallBack = TensorBoard(log_dir='./logs',  # log 目录
                  embeddings_freq=0,
                  embeddings_layer_names=None,
                  embeddings_metadata=None)
-
 index = list(range(len(x_train)))
 
 np.random.shuffle(index)
@@ -70,4 +70,4 @@ y_train = y_train[index]
 
 model.fit(x_train,y_train, epochs=1250, batch_size=20, callbacks=[callback,tbCallBack], validation_split = 0.15)
 
-model.save('./stockModel/stockmodel_'+stock_symbol+'.h5')
+model.save('./stockModel/stockmodel_lstm_'+stock_symbol+'.h5')

@@ -16,7 +16,7 @@ def stock_read(stock_symbol, dirPath):
     result = data_read(dirPath)
     if(len(stock_symbol) != 4):    #只看4位數的股票
         return
-    first = 0;
+    first = 0
     for i in result:   #瀏覽每個檔案
         data_locate = os.path.join(dirPath, i)   #檔案名稱
         with open(data_locate, 'r') as f:    #讀取檔案內容
