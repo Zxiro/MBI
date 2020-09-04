@@ -38,7 +38,9 @@ finput.write("year"+",")
 finput.write("roi of predict"+",")
 finput.write("roi of ans"+",")
 finput.write("roi of baseline,")
-finput.write("trend_accurancy_rate"+"\n")
+finput.write("trend_accurancy_rate_test"+",")
+finput.write("trend_accurancy_rate_train"+",")
+finput.write("trend_accurancy_rate_val"+"\n")
 print(start_year)
 print(end_date)
 print(number_of_data)
@@ -78,8 +80,9 @@ for i in range(number_of_data):
 
     os.system("python3 build_train_data.py")
     #os.system("python3 stockModel.py 0050")
-    os.system("python3 transformer.py 0050")
+    os.system("python3 model_start.py 0050")
     #os.system("python3 ./Model/transformer.py 0050")
+
 
     stock_symbol = "0050"
 
@@ -88,8 +91,10 @@ for i in range(number_of_data):
     finput.write(str(evaluate.roi("predict"))+"%,")
     finput.write(str(evaluate.roi("ans"))+"%,")
     finput.write(str(evaluate.roi("baseline"))+"%,")
-    finput.write(str(evaluate.trend_accurancy_rate())+"%\n")
+    finput.write(str(evaluate.trend_accurancy_rate("test"))+"%,")
+    finput.write(str(evaluate.trend_accurancy_rate("train"))+"%,")
+    finput.write(str(evaluate.trend_accurancy_rate("val"))+"%\n")
     finput.write("\n")
-
+    evaluate.predictplt()
 
 finput.close()

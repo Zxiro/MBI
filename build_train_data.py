@@ -120,10 +120,24 @@ def generate_train(feature, data, name):
             if(k == 0 or k == 1):
                 k = k+1
                 continue
+<<<<<<< Updated upstream
             #new_span_data = pd.concat([tmp_data,span_data])#two week
             #threeweek_span_data = pd.concat([pd.concat([tmp_data,tmp_data2]),span_data])
             #tmp_data = tmp_data2
             #tmp_data2 = span_data
+=======
+            new_span_data = pd.concat([tmp_data,span_data])
+            threeweek_span_data = pd.concat([pd.concat([tmp_data,tmp_data2]),span_data])
+            train_x.append(span_data.loc[:].values.tolist())
+            #train_x.append(threeweek_span_data.loc[:].values.tolist()) #append all feature list
+            mon_open = span_data['open'][0]
+            fri_close = span_data['close'][4]
+            open_money.append(mon_open)
+            train_y.append(fri_close - mon_open)
+            #tmp_data = span_data
+            tmp_data = tmp_data2
+            tmp_data2 = span_data
+>>>>>>> Stashed changes
             train_y_fri.append(fri_close)
             train_y_mon.append(mon_open)
     train_x.pop()#drop last
@@ -173,6 +187,7 @@ if '__main__' == __name__:
     end_date = stock_dic['end_date']
 
     usa = get_usa_index() #get usa index data
+    print(usa)
     stock_data = load_csv(stock_num, start_date, end_date) #load selected stock's data which is in the set timespan 
     af = Add_feature(stock_data) #calculate the wanted feature and add on the stock dataframe
     af.data = filter_feature(af.data, feature) #leave the wanted feature

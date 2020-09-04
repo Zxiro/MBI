@@ -2,21 +2,38 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import pandas as pd
+import time
 from tensorflow.keras.models import load_model
-from tranformer import TokenAnd
+import tensorflow as tf
+import tensorflow_hub as hub
+from Model.transformer import TokenAndPositionEmbedding, TransformerBlock, MultiHeadSelfAttention
+
 class Evaluate:
     def __init__(self, stock):
         '''引入資料'''
         day = 5
         self.x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock+'.npy')
         self.y_test = np.load('./StockData/TrainingData/testingY_'+stock+'.npy')
+        self.x_train = np.load('./StockData/TrainingData/trainX_'+stock+'.npy')
+        self.y_train = np.load('./StockData/TrainingData/trainY_'+stock+'.npy')
+        self.x_val = np.load('./StockData/TrainingData/valX_'+stock+'.npy')
+        self.y_val = np.load('./StockData/TrainingData/valY_'+stock+'.npy')
+        print(self.x_test.shape)
         self.origin_x_test = np.load('./StockData/TrainingData/opentestingX_'+stock+'.npy') #每個禮拜一的開盤價
-        self.model = load_model('./stockModel/transformer_'+stock+'.h5') #引入訓練完model
         self.model_inc = load_model('./stockModel/stockmodel_inception_cnn_0050_dif.h5') #引入訓練完model
         self.model_cnn = load_model('./stockModel/stockmodel_cnn_0050_dif.h5') #引入訓練完model
         self.model_lstm = load_model('./stockModel/stockmodel_inception_cnn_0050_dif.h5') #引入訓練完model
-        self.x_test = self.x_test.reshape(-1, day, self.x_test.shape[2])
-        self.predict = self.model_inc.predict(self.x_test)
+        #self.model = load_model('./stockModel/stockmodel_'+stock+'.h5') #引入訓練完model
+        self.model = load_model('./stockModel/transformer_'+stock+'.h5',custom_objects={'MultiHeadSelfAttention':MultiHeadSelfAttention,'TokenAndPositionEmbedding':TokenAndPositionEmbedding,'TransformerBlock':TransformerBlock,}) #引入訓練完model
+        #reloaded_model = tf.keras.experimental.load_from_saved_model('./stockModel/transformer_'+stock+'.h5', custom_objects={'KerasLayer':hub.KerasLayer})
+        self.x_test = self.x_test.reshape(-1,day,self.x_test.shape[-1])
+        self.x_train = self.x_train.reshape(-1,day,self.x_train.shape[-1])
+        self.x_val = self.x_val.reshape(-1,day,self.x_val.shape[-1])
+        print(self.x_test.shape)
+        #exit()
+        self.predict = self.model.predict(self.x_test)
+        self.train_predict = self.model.predict(self.x_train)
+        self.val_predict = self.model.predict(self.x_val)
         self.stock = stock
     def roi(self, method): #method=> predict ans baseline
         principle = 1000000 #本金
@@ -58,12 +75,13 @@ class Evaluate:
         print("next week? :",newweek,"\n")
 
     def predictplt(self):
+        plt.cla()
         plt.plot(self.y_test,color = 'red',label = 'real stock price')
         plt.plot(self.predict , color = 'blue' , label = 'predict stock price')
         plt.xlabel('week')
         plt.ylabel('stock price')
         plt.legend()
-        plt.savefig("./predictimg/"+self.stock+".png")
+        plt.savefig("../public_html/png/tranformer_"+self.stock+"_"+time.strftime("%m-%d-%H-%M%S",time.localtime())+".png")
         plt.show()
 
     '''預測誤差的百分比'''
@@ -81,14 +99,25 @@ class Evaluate:
         print("loss rate: ", round(acc_rate,2), "%\n")
 
     '''預測正負的準確度'''
-    def trend_accurancy_rate(self):
+    def trend_accurancy_rate(self,trend_type):
         trend_acc = 0.00
-        for predict, real in zip(self.predict, self.y_test):
+        if(trend_type == "test"):
+            predict_data = self.predict
+            y_data = self.y_test
+        elif(trend_type == "train"):
+            predict_data = self.train_predict
+            y_data = self.y_train
+        elif(trend_type == "val"):
+            predict_data = self.val_predict
+            y_data = self.y_val
+        else :
+            return
+        for predict, real in zip(predict_data, y_data):
             if(predict[0] > 0 and real > 0):
                 trend_acc+=1
             elif(predict[0] < 0 and real < 0):
                 trend_acc+=1
-        trend_acc /= self.y_test.size
+        trend_acc /= y_data.size
         trend_acc *= 100
         print("trend_accurancy_rate:", round(trend_acc,2), "%\n")
         return round(trend_acc,2)
