@@ -15,12 +15,12 @@ os.environ["CUDA_VISIBLE_DEVICES"] = ""
 #else:
     #stock_symbol = sys.argv[1]
 stock_symbol = "0050"
-x_train = np.load('./StockData/TrainingData/NormtrainingX_'+stock_symbol+'.npy')
-y_train = np.load('./StockData/TrainingData/trainingY_'+stock_symbol+'.npy')
-x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock_symbol+'.npy')
-y_test = np.load('./StockData/TrainingData/testingY_'+stock_symbol+'.npy')
-y_train_mon = np.load('./StockData/TrainingData/trainingY_mon_'+stock_symbol+'.npy')
-y_train_fri = np.load('./StockData/TrainingData/trainingY_fri_'+stock_symbol+'.npy')
+x_train = np.load('../StockData/TrainingData/NormtrainingX_'+stock_symbol+'.npy')
+y_train = np.load('../StockData/TrainingData/trainingY_'+stock_symbol+'.npy')
+x_test = np.load('../StockData/TrainingData/NormtestingX_'+stock_symbol+'.npy')
+y_test = np.load('../StockData/TrainingData/testingY_'+stock_symbol+'.npy')
+y_train_mon = np.load('../StockData/TrainingData/trainingY_mon_'+stock_symbol+'.npy')
+y_train_fri = np.load('../StockData/TrainingData/trainingY_fri_'+stock_symbol+'.npy')
 
 '''def turn_to_bin(list):
     for i in range(len(list)):
@@ -117,21 +117,21 @@ def cnn(input_data):
     return model
 input_ = Input(shape = (5, feature))
 model = cnn(input_)
-index = list(range(len(x_train)))
+'''index = list(range(len(x_train)))
 np.random.shuffle(index)
 x_train = x_train[index]
 y_train = y_train[index]
 y_train_mon = y_train_mon[index]
 y_train_fri = y_train_fri[index]
-
+'''
 callback = EarlyStopping(monitor="val_loss", patience = 32, verbose = 1, mode="auto")
 model.fit(x_train, y_train_mon, epochs = 512, batch_size = 8, verbose = 1, validation_split = 0.15,  callbacks=[callback])
-model.save('./stockModel/stockmodel_inception_cnn_0050_mon.h5')
+model.save('../stockModel/stockmodel_inception_cnn_0050_mon.h5')
 
 model.fit(x_train, y_train_fri, epochs = 512, batch_size = 8, verbose = 1, validation_split = 0.15,  callbacks=[callback])
-model.save('./stockModel/stockmodel_inception_cnn_0050_fri.h5')
+model.save('../stockModel/stockmodel_inception_cnn_0050_fri.h5')
 
 model.fit(x_train, y_train, epochs = 512, batch_size = 8, verbose = 1, validation_split = 0.15,  callbacks=[callback])
-model.save('./stockModel/stockmodel_inception_cnn_0050_dif.h5')
+model.save('../stockModel/stockmodel_inception_cnn_0050_dif.h5')
 
 

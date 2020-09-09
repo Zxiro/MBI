@@ -11,13 +11,13 @@ from sklearn.metrics import r2_score#R square
 
 '''引入資料'''
 stock = '0050'
-x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock+'.npy')
-y_test = np.load('./StockData/TrainingData/testingY_'+stock+'.npy')
-x_test_ = np.load('./StockData/TrainingData/NormtrainingX_'+stock+'.npy')
-y_test_mon = np.load('./StockData/TrainingData/testingY_mon_'+stock+'.npy')
-y_test_fri = np.load('./StockData/TrainingData/testingY_fri_'+stock+'.npy')
-y_test_mon_ans = np.load('./StockData/TrainingData/trainingY_mon_'+stock+'.npy')
-y_test_fri_ans = np.load('./StockData/TrainingData/trainingY_fri_'+stock+'.npy')
+x_test = np.load('../StockData/TrainingData/NormtestingX_'+stock+'.npy')
+y_test = np.load('../StockData/TrainingData/testingY_'+stock+'.npy')
+x_test_ = np.load('../StockData/TrainingData/NormtrainingX_'+stock+'.npy')
+y_test_mon = np.load('../StockData/TrainingData/testingY_mon_'+stock+'.npy')
+y_test_fri = np.load('../StockData/TrainingData/testingY_fri_'+stock+'.npy')
+y_test_mon_ans = np.load('../StockData/TrainingData/trainingY_mon_'+stock+'.npy')
+y_test_fri_ans = np.load('../StockData/TrainingData/trainingY_fri_'+stock+'.npy')
 '''
 def turn_to_bin(list):
     for i in range(len(list)):
@@ -66,7 +66,7 @@ plt.plot(y_test, color = 'red',label = 'ans')
 plt.ylabel('CNN')
 plt.legend()
 
-plt.savefig("../public_html/stock_evaluate/cnn/0050_"+ time.strftime("%m-%d %H-%m-%s", time.localtime())+".png")
+plt.savefig("../../public_html/stock_evaluate/cnn/0050_"+ time.strftime("%m-%d %H-%m-%s", time.localtime())+".png")
 plt.clf()
 
 ax3 = plt.subplot(2, 1, 2)

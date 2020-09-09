@@ -7,3 +7,4 @@ env/
 predictimg/
 *pycache*/
 *.un~
+build_config.py
