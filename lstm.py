@@ -50,7 +50,7 @@ model.add(LSTM(100,return_sequences = False))
 model.add(Dense(1))
 # model_fit(model, x_train, y_train, x_test, y_test, 'lstm')
 sgd = optimizers.Adam(lr=0.001,beta_1=0.9, beta_2=0.999, amsgrad=False)
-model.compile(loss = "mse",optimizer=sgd)
+model.compile(loss = "mse",optimizer = 'adam')
 
 model.summary()
 
@@ -76,7 +76,7 @@ y_train = y_train[index]
 model.fit(x_train,y_train, epochs=1250, batch_size=20, callbacks=[callback,tbCallBack], validation_split = 0.15)
 
 #<<<<<<< Updated upstream
-#model.save('./stockModel/stockmodel_lstm_'+stock_symbol+'.h5')
+model.save('./stockModel/stockmodel_lstm_'+stock_symbol+'_dif.h5')
 #=======
-model.save('./stockModel/stockmodel_'+stock_symbol+'.h5')
+#model.save('./stockModel/stockmodel_'+stock_symbol+'.h5')
 #'''
