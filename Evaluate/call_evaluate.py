@@ -1,5 +1,6 @@
 import os
 import sys
+sys.path.append(".")
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]=""
 from evaluate import Evaluate

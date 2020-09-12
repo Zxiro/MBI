@@ -7,7 +7,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.callbacks import EarlyStopping
 from model_fit import load_data, model_fit
-from transformer import TokenAndPositionEmbedding, TransformerBlock, MultiHeadSelfAttention, load_transformer_model
+from transformer.transformer import TokenAndPositionEmbedding, TransformerBlock, MultiHeadSelfAttention, load_transformer_model
 if "__main__" == __name__:
 
 
