@@ -144,13 +144,6 @@ def generate_train(feature, data, name):
     train_y.pop(0)#drop first
 ======='''
         #gen_x is for training, gen_y is for testing
-        if(len(span_data)!=0):
-            print("ok")
-            week = span_data.index[0]
-            mod_week = str(week).replace("-", "")
-            week_start = mod_week[:8]
-            stock_dic['week_start'].append(week_start)
-            print(stock_dic['week_start'])
         gen_x.append(span_data)
         gen_y.append(span_data)
     gen_x.pop()
