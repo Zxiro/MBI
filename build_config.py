@@ -8,6 +8,7 @@ stock_dic = {
     'features' :  ['date', 'close', 'open', 'high', 'low', 'volume', 'k','d','rsv', 'MA5','MA30','MA60', 'MACD'],
     'span':['d', 'w', 'm'],
     'close_type' :'close', #['close','adj_close']
+    'week_start' : []
 }
 
 index_dic = {

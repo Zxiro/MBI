@@ -143,7 +143,14 @@ def generate_train(feature, data, name):
     train_x.pop()#drop last
     train_y.pop(0)#drop first
 ======='''
-        # copy span_data 第一份取x 第二份取y # 準備兩周的 tx ty
+        #gen_x is for training, gen_y is for testing
+        if(len(span_data)!=0):
+            print("ok")
+            week = span_data.index[0]
+            mod_week = str(week).replace("-", "")
+            week_start = mod_week[:8]
+            stock_dic['week_start'].append(week_start)
+            print(stock_dic['week_start'])
         gen_x.append(span_data)
         gen_y.append(span_data)
     gen_x.pop()
@@ -174,8 +181,8 @@ def load_csv(num, start, end):
     for i in stock_data["date"]:
         if( start_date > i or end_date < i):
             stock_data.drop([count], axis = 0, inplace = True)
-        count =count + 1
-    stock_data = stock_data.reset_index(drop=True)
+        count = count + 1
+    stock_data = stock_data.reset_index(drop = True)
     return stock_data
 
 if '__main__' == __name__:
@@ -186,9 +193,8 @@ if '__main__' == __name__:
     start_date = stock_dic['date']
     end_date = stock_dic['end_date']
 
-    usa = get_usa_index() #get usa index data
-    print(usa)
-    stock_data = load_csv(stock_num, start_date, end_date) #load selected stock's data which is in the set timespan 
+    usa = get_usa_index() #get usa index data #print(usa)
+    stock_data = load_csv(stock_num, start_date, end_date) #load selected stock's data which is in the set timespan
     af = Add_feature(stock_data) #calculate the wanted feature and add on the stock dataframe
     af.data = filter_feature(af.data, feature) #leave the wanted feature
     df = pd.concat([af.data, usa], axis=1).reindex(af.data.index) #concat the USA index on the data
