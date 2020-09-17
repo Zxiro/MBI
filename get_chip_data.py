@@ -1,3 +1,4 @@
+import csv
 import requests
 import time
 import pandas as pd
@@ -22,17 +23,25 @@ for i in range(len(stock_data['date'])):
     if(len(week_start)!=0):
        stock_data['date'][i] = week_start[:8]
 
-for i in range(len(stock_data['date'])):
-    print(stock_data['date'][i])
-    tse_csv = requests.get('https://www.twse.com.tw/fund/T86?response=csv&date='+stock_data['date'][i]+'&selectType=ALLBUT0999')
-    df = pd.read_csv(StringIO(tse_csv.text), header = 1).dropna(how='all', axis=1).dropna(how='any')
-    df['stock_id'] = df['證券代號'].str.replace('=','').str.replace('"','')
-    df['inv_trust'] = df['投信買賣超股數']
-    df['dealer'] = df['自營商買賣超股數']
-    df['institution_inv_overview'] = df['三大法人買賣超股數']
-    df['foregin_inv'] = df['institution_inv_overview'] - df['inv_trust'] - df['dealer']
-    df.drop(df.columns[ :-5],inplace = True, axis = 1)
-    mask = (df['stock_id'] == stock_id)
-    print(df[mask])
-    time.sleep(10)
+with open("./chip.csv", "w") as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(['stock_id', 'inv_trust', 'dealer', 'foregin_inv', 'total_inv_overview'])
+    for i in range(len(stock_data['date'])):
+        print(stock_data['date'][i])
+        tse_csv = requests.get('https://www.twse.com.tw/fund/T86?response=csv&date='+stock_data['date'][i]+'&selectType=ALLBUT0999')
+        df = pd.read_csv(StringIO(tse_csv.text), header = 1).dropna(how='all', axis=1).dropna(how='any')
+        print(id(df))
+        df['stock_id'] = df['證券代號'].str.replace('=','').str.replace('"','')
+        df['inv_trust'] = df['投信買賣超股數']
+        df['dealer'] = df['自營商買賣超股數']
+        df['foregin_inv'] = df.iloc[:, 4:5]
+        df['total_inv_overview'] = df['三大法人買賣超股數']
+        print(df.shape)
+        #print(df)
+        df.drop(df.columns[ :-5],inplace = True, axis = 1)
+        mask = (df['stock_id'] == stock_id)
+        print(df[mask])
+        writer.writerow(df[mask].iloc[0])
+        #print(df[mask].iloc[0])
+        time.sleep(5.6)
 
