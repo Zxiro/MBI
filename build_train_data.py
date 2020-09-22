@@ -8,6 +8,7 @@ from sklearn import preprocessing
 from build_config import index_dic
 from build_config import stock_dic
 from add_feature import Add_feature
+#from get_chip_data import get_chip_csv
 from get_usa_data import get_usa_index
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]=""
@@ -167,16 +168,29 @@ def filter_feature(df, feature):
 
 def load_csv(num, start, end):
     stock_data = pd.DataFrame(pd.read_csv('./StockData/stock'+num+'.csv'))
+    chip_data = pd.DataFrame(pd.read_csv('./Chip_data/'+ num +'_daily_chip.csv'))
     stock_data['date'] = pd.to_datetime(stock_data['date'])
+    chip_data['date'] = pd.to_datetime(chip_data.index)
+    chip_data.drop(['stock_id'], axis = 1, inplace = True)
+    chip_data.set_index("date", inplace = True)
+    chip_data = chip_data.reset_index(drop = True)
+    for c in chip_data.columns:
+       #print(c)
+       #print(chip_data[c])
+       #exit()
+       chip_data[c] = chip_data[c].str.replace(',','')
+       chip_data[c] = chip_data[c].astype(float)
     start_date = pd.to_datetime(start)
     end_date = pd.to_datetime(end)
     count = 0
     for i in stock_data["date"]:
         if( start_date > i or end_date < i):
             stock_data.drop([count], axis = 0, inplace = True)
+            #chip_data.drop([count], axis = 0, inplace = True)
         count = count + 1
     stock_data = stock_data.reset_index(drop = True)
-    return stock_data
+    #3chip_data = chip_data.reset_index(drop = True)
+    return stock_data, chip_data
 
 if '__main__' == __name__:
     stock_num = stock_dic['stock_num']
@@ -187,10 +201,14 @@ if '__main__' == __name__:
     end_date = stock_dic['end_date']
 
     usa = get_usa_index() #get usa index data #print(usa)
-    stock_data = load_csv(stock_num, start_date, end_date) #load selected stock's data which is in the set timespan
+    stock_data, chip_data = load_csv(stock_num, start_date, end_date) #load selected stock's data which is in the set timespan
     af = Add_feature(stock_data) #calculate the wanted feature and add on the stock dataframe
     af.data = filter_feature(af.data, feature) #leave the wanted feature
     df = pd.concat([af.data, usa], axis=1).reindex(af.data.index) #concat the USA index on the data
+    #print(df)
+    #print(chip_data)
+    df = pd.concat([df, chip_data], axis=1).reindex(df.index) #concat the chip on the data
+    #exit()
     df = df.dropna()
     print(df)
     print('------------------------')
