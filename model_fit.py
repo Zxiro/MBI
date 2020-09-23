@@ -57,8 +57,8 @@ def model_fit(model, x_train, y_train, x_test, y_test, x_val, y_val, stock_symbo
 
     sgd = optimizers.Adam(lr=0.001,beta_1=0.9, beta_2=0.999, amsgrad=False)
     model.compile(loss="mse",optimizer=sgd)
-
-    model.summary()
+    #model.compile(loss="mse", metrics=["accuracy"])
+    print(model.summary())
 
     callback = EarlyStopping(monitor="val_loss", patience=20, verbose=1, mode="auto")#callback = [logger]
 
