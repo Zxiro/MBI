@@ -14,6 +14,11 @@ class Evaluate:
     def __init__(self, stock):
         '''引入資料'''
         day = 5
+        '''
+        分別將test train val 檔案引入
+        分割方式可參考model_fit.py內的load_data 此方式是為了計算train和val的accuracy
+        model.fit裡面的val的分割方式要改成直接引入 不要使用validation.split
+        '''
         self.x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock+'.npy')
         self.y_test = np.load('./StockData/TrainingData/testingY_'+stock+'.npy')
         self.x_train = np.load('./StockData/TrainingData/trainX_'+stock+'.npy')
@@ -84,8 +89,8 @@ class Evaluate:
         plt.xlabel('week')
         plt.ylabel('stock price')
         plt.legend()
-        #plt.savefig("../public_html/png/tranformer_"+self.stock+"_"+time.strftime("%m-%d-%H-%M%S",time.localtime())+".png")
-        #plt.show()
+        plt.savefig("../public_html/png/tranformer_"+self.stock+"_"+time.strftime("%m-%d-%H-%M%S",time.localtime())+".png")
+        plt.show()
 
     '''預測誤差的百分比'''
     def accurancy_rate(self):
@@ -104,6 +109,9 @@ class Evaluate:
     '''預測正負的準確度'''
     def trend_accurancy_rate(self,trend_type):
         trend_acc = 0.00
+        '''
+        分別可選擇 test train val 來計算accuracy
+        '''
         if(trend_type == "test"):
             predict_data = self.predict
             y_data = self.y_test
@@ -122,6 +130,6 @@ class Evaluate:
                 trend_acc+=1
         trend_acc /= y_data.size
         trend_acc *= 100
-        print("trend_accurancy_rate:", round(trend_acc,2), "%\n")
+        print("trend_accurancy_rate(",trend_type,"):", round(trend_acc,2), "%\n")
         return round(trend_acc,2)
 
