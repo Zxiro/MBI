@@ -22,11 +22,11 @@ class Evaluate:
         self.y_val = np.load('./StockData/TrainingData/valY_'+stock+'.npy')
         print(self.x_test.shape)
         self.origin_x_test = np.load('./StockData/TrainingData/opentestingX_'+stock+'.npy') #每個禮拜一的開盤價
-        #self.model_inc = load_model('../stockModel/stockmodel_inception_cnn_0050_dif.h5') #引入訓練完model
+        self.model_inc = load_model('../stockModel/stockmodel_inception_cnn_0050_dif.h5') #引入訓練完model
         #self.model_cnn = load_model('../stockModel/stockmodel_cnn_0050_dif.h5') #引入訓練完model
         #self.model_lstm = load_model('../stockModel/stockmodel_lstm_0050_dif.h5') #引入訓練完model
         #self.model = load_model('../stockModel/stockmodel_'+stock+'.h5') #引入訓練完model
-        self.model = load_model('./stockModel/transformer_'+stock+'.h5',custom_objects={'MultiHeadSelfAttention':MultiHeadSelfAttention,'TokenAndPositionEmbedding':TokenAndPositionEmbedding,'TransformerBlock':TransformerBlock,}) #引入訓練完model
+        #self.model = load_model('./stockModel/transformer_'+stock+'.h5',custom_objects={'MultiHeadSelfAttention':MultiHeadSelfAttention,'TokenAndPositionEmbedding':TokenAndPositionEmbedding,'TransformerBlock':TransformerBlock,}) #引入訓練完model
 
         #reloaded_model = tf.keras.experimental.load_from_saved_model('./stockModel/transformer_'+stock+'.h5', custom_objects={'KerasLayer':hub.KerasLayer})
         self.x_test = self.x_test.reshape(-1, day, self.x_test.shape[-1])

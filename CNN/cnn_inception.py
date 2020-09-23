@@ -30,8 +30,8 @@ def turn_to_bin(list):
             list[i] = 0
     #print(list)
 
-turn_to_bin(y_train)
-turn_to_bin(y_test)
+#turn_to_bin(y_train)
+#turn_to_bin(y_test)
 #turn_to_bin(y_train_mon)
 #turn_to_bin(y_train_fri)
 #exit()
@@ -60,7 +60,6 @@ def layer_1(input_data):
     lay_2 = AveragePooling1D(2, padding = 'valid', strides = 1)(lay_2)
 
     return lay_2
-
 
 
 def inception_module(input_data):
@@ -104,27 +103,28 @@ def cnn(input_data):
     out2 = inception_module(input_data)
     out3 = inception_module(out2)
     out4 = inception_module(out3)
-    out5 = inception_module(out4)
-    res = layer_1(out4)
+    res = inception_module(out4)
+    #res = layer_1(out4)
     output = Flatten()(res)
-    dropout = tf.keras.layers.Dropout(.64)(output)
-    dense = Dense(1, activation='relu')(dropout)
-    dense = Dense(1, activation='relu')(dense)
+    dropout = tf.keras.layers.Dropout(.2)(output)
+    dense = Dense(1)(dropout)
+    #dense = Dense(1, activation='relu')(dense)
     model = Model(inputs = input_data, outputs = dense)
     print(model.summary())
-    model.compile(loss='binary_crossentropy', optimizer='adam')
+    model.compile(loss = 'mse', optimizer='adam')
+    #model.compile(loss='binary_crossentropy', optimizer='adam')
     return model
 
 input_ = Input(shape = (5, feature))
 model = cnn(input_)
 callback = EarlyStopping(monitor="val_loss", patience = 32, verbose = 1, mode="auto")
-#model.fit(x_train, y_train_mon, epochs = 512, batch_size = 8, verbose = 1, validation_split = 0.15,  callbacks=[callback])
+#model.fit(x_train, y_train_mon, epochs = 512, batch_size = 6, verbose = 1, validation_split = 0.15,  callbacks=[callback])
 #model.save('../stockModel/stockmodel_inception_cnn_0050_mon.h5')
 
-#model.fit(x_train, y_train_fri, epochs = 512, batch_size = 8, verbose = 1, validation_split = 0.15,  callbacks=[callback])
+#model.fit(x_train, y_train_fri, epochs = 512, batch_size = 6, verbose = 1, validation_split = 0.15,  callbacks=[callback])
 #model.save('../stockModel/stockmodel_inception_cnn_0050_fri.h5')
 
-model.fit(x_train, y_train, epochs = 512, batch_size = 8, verbose = 1, validation_split = 0.15,  callbacks=[callback])
+model.fit(x_train, y_train, epochs = 512, batch_size = 12, verbose = 1, validation_split = 0.15,  callbacks=[callback])
 model.save('../stockModel/stockmodel_inception_cnn_0050_dif.h5')
 
 

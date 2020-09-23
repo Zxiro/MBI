@@ -8,12 +8,11 @@ stock_dic = {
     'features' :  ['date', 'close', 'open', 'high', 'low', 'volume', 'k','d','rsv', 'MA5','MA30','MA60', 'MACD'],
     'span':['d', 'w', 'm'],
     'close_type' :'close', #['close','adj_close']
-    'week_start' : []
 }
 
 index_dic = {
     'date':'2013-02-11', #永豐給lab最早的資料時間
     'end_date':'2020-02-05',
-    'index': {'^DJI':'dji'},#'^SOX':'sox', '^IXIC':'nas''^DJI':'dji' 'GSPC':'sp',
+    'index': {'^GSPC':'sp'},#'^SOX':'sox', '^IXIC':'nas''^DJI':'dji' 'GSPC':'sp',
     'features':['Close', 'Open', 'High', 'Low', 'Volume'],
 }
