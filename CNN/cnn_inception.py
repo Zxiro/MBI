@@ -15,12 +15,10 @@ os.environ["CUDA_VISIBLE_DEVICES"] = ""
 #else:
     #stock_symbol = sys.argv[1]
 stock_symbol = "0050"
-x_train = np.load('../StockData/TrainingData/NormtrainingX_'+stock_symbol+'.npy')
-y_train = np.load('../StockData/TrainingData/trainingY_'+stock_symbol+'.npy')
-x_test = np.load('../StockData/TrainingData/NormtestingX_'+stock_symbol+'.npy')
-y_test = np.load('../StockData/TrainingData/testingY_'+stock_symbol+'.npy')
-y_train_mon = np.load('../StockData/TrainingData/trainingY_mon_'+stock_symbol+'.npy')
-y_train_fri = np.load('../StockData/TrainingData/trainingY_fri_'+stock_symbol+'.npy')
+x_train = np.load('../stock_data/trx/train_x_'+stock_symbol+'.npy')
+y_train = np.load('../stock_data/try/train_y_'+stock_symbol+'.npy')
+x_test = np.load('../stock_data/tex/test_x_'+stock_symbol+'.npy')
+y_test = np.load('../stock_data/tey/test_y_'+stock_symbol+'.npy')
 
 def turn_to_bin(list):
     for i in range(len(list)):
@@ -32,16 +30,6 @@ def turn_to_bin(list):
 
 #turn_to_bin(y_train)
 #turn_to_bin(y_test)
-#turn_to_bin(y_train_mon)
-#turn_to_bin(y_train_fri)
-#exit()
-
-'''print(x_train.shape) #(3065, 21) 每筆都是整周的fea 3065 = 613 (week num) * 5 (day)
-print(x_train)
-print(y_train.shape)
-print(y_train)
-print(x_test)'''
-print(x_test.shape)
 feature = x_test.shape[2]
 
 def layer_1(input_data):
@@ -63,32 +51,30 @@ def layer_1(input_data):
 
 
 def inception_module(input_data):
-    #input_data = Input(shape = (5, feature))
 
     branch_1_5 = Conv1D(filters = 128,
-                    kernel_size = 1,
-                    strides = 1,
-                    activation = 'relu')(input_data )
-    branch_1_5 = Conv1D(filters = 64,
-                    kernel_size = 1,
-                    strides = 1,
-                    activation = 'relu')(branch_1_5) #output 5
-
-    branch_1_3 = Conv1D(filters = 128,
                     kernel_size = 3,
                     strides = 1,
                     activation = 'relu')(input_data )
-    branch_1_3 = Conv1D(filters = 64,
+    branch_1_5 = Conv1D(filters = 128,
                     kernel_size = 1,
                     strides = 1,
-                    activation = 'relu')(branch_1_3) #output 3
-
-    branch_1_1 = Conv1D(filters = 128,
+                    activation = 'relu')(branch_1_5) #output 5
+    branch_1_3 = Conv1D(filters = 128,
                     kernel_size = 2,
                     strides = 1,
                     activation = 'relu')(input_data )
-    branch_1_1 = Conv1D(filters = 64,
+    branch_1_3 = Conv1D(filters = 128,
                     kernel_size = 2,
+                    strides = 1,
+                    activation = 'relu')(branch_1_3) #output 3
+
+    branch_1_1 = Conv1D(filters = 256,
+                    kernel_size = 1,
+                    strides = 1,
+                    activation = 'relu')(input_data )
+    branch_1_1 = Conv1D(filters = 128,
+                    kernel_size = 3,
                     strides = 1,
                     activation = 'relu')(branch_1_1)
     #branch_1_1 = AveragePooling1D(2, padding = 'valid', strides = 1)(branch_1_1) #output 1
@@ -106,7 +92,7 @@ def cnn(input_data):
     res = inception_module(out4)
     #res = layer_1(out4)
     output = Flatten()(res)
-    dropout = tf.keras.layers.Dropout(.2)(output)
+    dropout = tf.keras.layers.Dropout(.15)(output)
     dense = Dense(1)(dropout)
     #dense = Dense(1, activation='relu')(dense)
     model = Model(inputs = input_data, outputs = dense)
@@ -115,7 +101,7 @@ def cnn(input_data):
     #model.compile(loss='binary_crossentropy', optimizer='adam')
     return model
 
-input_ = Input(shape = (5, feature))
+input_ = Input(shape = (3, feature))
 model = cnn(input_)
 callback = EarlyStopping(monitor="val_loss", patience = 32, verbose = 1, mode="auto")
 #model.fit(x_train, y_train_mon, epochs = 512, batch_size = 6, verbose = 1, validation_split = 0.15,  callbacks=[callback])
@@ -124,7 +110,7 @@ callback = EarlyStopping(monitor="val_loss", patience = 32, verbose = 1, mode="a
 #model.fit(x_train, y_train_fri, epochs = 512, batch_size = 6, verbose = 1, validation_split = 0.15,  callbacks=[callback])
 #model.save('../stockModel/stockmodel_inception_cnn_0050_fri.h5')
 
-model.fit(x_train, y_train, epochs = 512, batch_size = 12, verbose = 1, validation_split = 0.15,  callbacks=[callback])
+model.fit(x_train, y_train, epochs = 512, batch_size = 4, verbose = 1, validation_split = 0.15,  callbacks=[callback])
 model.save('../stockModel/stockmodel_inception_cnn_0050_dif.h5')
 
 

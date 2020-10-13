@@ -11,7 +11,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import optimizers
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.callbacks import TensorBoard
-from Model.transformer import TokenAndPositionEmbedding, TransformerBlock, MultiHeadSelfAttention
+#from Model.transformer import TokenAndPositionEmbedding, TransformerBlock, MultiHeadSelfAttention
 from sklearn.model_selection import train_test_split
 def load_data(stock_symbol):
     day = 5
@@ -39,7 +39,7 @@ def load_data(stock_symbol):
     '''
     x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.2)
     Npdata = x_train
-    np.save(os.path.join('./StockData/TrainingData/', 'trainX_' + stock_symbol), Npdata) 
+    np.save(os.path.join('./StockData/TrainingData/', 'trainX_' + stock_symbol), Npdata)
 
     Npdata = y_train
     np.save(os.path.join('./StockData/TrainingData/', 'trainY_' + stock_symbol), Npdata)
