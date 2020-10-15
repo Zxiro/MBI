@@ -6,40 +6,39 @@ import time
 from tensorflow.keras.models import load_model
 import tensorflow as tf
 import sys
+from model_fit import load_data
+from build_config import stock_dic
 sys.path.append(".")
 #import tensorflow_hub as hub
-from Model.transformer import TokenAndPositionEmbedding, TransformerBlock, MultiHeadSelfAttention
+#from Model.transformer import TokenAndPositionEmbedding, TransformerBlock, MultiHeadSelfAttention
 
 class Evaluate:
     def __init__(self, stock):
-        '''引入資料'''
-        day = 5
         '''
         分別將test train val 檔案引入
         分割方式可參考model_fit.py內的load_data 此方式是為了計算train和val的accuracy
         model.fit裡面的val的分割方式要改成直接引入 不要使用validation.split
         '''
-        self.x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock+'.npy')
-        self.y_test = np.load('./StockData/TrainingData/testingY_'+stock+'.npy')
-        self.x_train = np.load('./StockData/TrainingData/trainX_'+stock+'.npy')
-        self.y_train = np.load('./StockData/TrainingData/trainY_'+stock+'.npy')
-        self.x_val = np.load('./StockData/TrainingData/valX_'+stock+'.npy')
-        self.y_val = np.load('./StockData/TrainingData/valY_'+stock+'.npy')
-        print(self.x_test.shape)
-        self.origin_x_test = np.load('./StockData/TrainingData/opentestingX_'+stock+'.npy') #每個禮拜一的開盤價
-        self.model_inc = load_model('../stockModel/stockmodel_inception_cnn_0050_dif.h5') #引入訓練完model
-        #self.model_cnn = load_model('../stockModel/stockmodel_cnn_0050_dif.h5') #引入訓練完model
-        #self.model_lstm = load_model('../stockModel/stockmodel_lstm_0050_dif.h5') #引入訓練完model
-        #self.model = load_model('../stockModel/stockmodel_'+stock+'.h5') #引入訓練完model
+        day =stock_dic['span']
+        load_data(stock)
+        self.x_test = np.load('./stock_data/tex/test_x_'+stock+'.npy')
+        self.y_test = np.load('./stock_data/tey/test_y_'+stock+'.npy')
+        self.x_train = np.load('./stock_data/trx/train_x_'+stock+'.npy')
+        self.y_train = np.load('./stock_data/try/train_y_'+stock+'.npy')
+        self.x_val = np.load('./stock_data/vax/val_x_'+stock+'.npy')
+        self.y_val = np.load('./stock_data/vay/val_y_'+stock+'.npy')
+        self.origin_x_test = np.load('./stock_data/trx/open_x_'+stock+'.npy')
+        #self.model_inc = load_model('../stockModel/stockmodel_inception_cnn_0050_dif.h5')
+        self.model_cnn = load_model('./stockModel/stockmodel_cnn_0050_dif.h5')
+        #self.model_lstm = load_model('../stockModel/stockmodel_lstm_0050_dif.h5')
         #self.model = load_model('./stockModel/transformer_'+stock+'.h5',custom_objects={'MultiHeadSelfAttention':MultiHeadSelfAttention,'TokenAndPositionEmbedding':TokenAndPositionEmbedding,'TransformerBlock':TransformerBlock,}) #引入訓練完model
 
         #reloaded_model = tf.keras.experimental.load_from_saved_model('./stockModel/transformer_'+stock+'.h5', custom_objects={'KerasLayer':hub.KerasLayer})
-        self.x_test = self.x_test.reshape(-1, day, self.x_test.shape[-1])
-        self.x_train = self.x_train.reshape(-1, day, self.x_train.shape[-1])
-        self.x_val = self.x_val.reshape(-1, day, self.x_val.shape[-1])
+        self.model =  self.model_cnn
+        # self.x_test = self.x_test.reshape(-1, day, self.x_test.shape[-1])
+        # self.x_train = self.x_train.reshape(-1, day, self.x_train.shape[-1])
+        # self.x_val = self.x_val.reshape(-1, day, self.x_val.shape[-1])
         self.predict = self.model.predict(self.x_test)
-        #print(self.predict)
-       # exit()
         self.train_predict = self.model.predict(self.x_train)
         self.val_predict = self.model.predict(self.x_val)
         self.stock = stock
@@ -47,6 +46,7 @@ class Evaluate:
         principle = 1000000 #本金
         funds = 1000000 #所有的財產
         amount = 0
+        share_num = 0
         if(method == "predict"):
             data = zip(self.predict, self.y_test, self.origin_x_test)
         elif(method == "ans"):
@@ -56,18 +56,16 @@ class Evaluate:
         else:
             print("ERROR!!!no this method")
             return
-        for predict, real, open_money in data: #放空 = close - open < 0
+        for predict, real, open_money in data: #Short sell= close - open < 0
             if predict > 0:
-               # print(predict)
-                amount = funds/open_money #買幾張
+                amount = funds/open_money
                 amount = math.floor(amount)
-                funds += (amount * real)
+                funds += (amount *real)
             if predict < 0:
                 close_money = predict + open_money
                 amount = funds/close_money
                 amount = math.floor(amount)
-                funds += (amount * (-1 * real))
-
+                funds += (amount*(-1*real))
         funds = round(funds, 2)
         print(method)
         print("principle: ", principle)
@@ -89,7 +87,7 @@ class Evaluate:
         plt.xlabel('week')
         plt.ylabel('stock price')
         plt.legend()
-        plt.savefig("../public_html/png/tranformer_"+self.stock+"_"+time.strftime("%m-%d-%H-%M%S",time.localtime())+".png")
+        #plt.savefig("../public_html/png/tranformer_"+self.stock+"_"+time.strftime("%m-%d-%H-%M%S",time.localtime())+".png")
         plt.show()
 
     '''預測誤差的百分比'''
@@ -119,8 +117,8 @@ class Evaluate:
             predict_data = self.train_predict
             y_data = self.y_train
         elif(trend_type == "val"):
-            predict_data = self.val_predict
-            y_data = self.y_val
+             predict_data = self.val_predict
+             y_data = self.y_val
         else :
             return
         for predict, real in zip(predict_data, y_data):

@@ -11,7 +11,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import optimizers
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.callbacks import TensorBoard
-#from model_fit import model_fit, load_data
+from model_fit import model_fit, load_data
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
@@ -42,11 +42,11 @@ print(y_test.shape)
 #x_train,y_train,x_test,y_test = load_data(stock_symbol)
 model = Sequential()
 print(x_train.shape[2])
-model.add(LSTM(100,input_shape=(day, x_train.shape[2]),return_sequences = True))
+model.add(LSTM(128,input_shape=(day, x_train.shape[2]),return_sequences = True))
 model.add(Dropout(0.2))
-model.add(LSTM(100,return_sequences = True))
+model.add(LSTM(128,return_sequences = True))
 model.add(Dropout(0.3))
-model.add(LSTM(100,return_sequences = False))
+model.add(LSTM(128,return_sequences = False))
 model.add(Dense(1))
 # model_fit(model, x_train, y_train, x_test, y_test, 'lstm')
 sgd = optimizers.Adam(lr=0.001,beta_1=0.9, beta_2=0.999, amsgrad=False)
