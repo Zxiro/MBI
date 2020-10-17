@@ -18,20 +18,20 @@ def resha(x): #(week, day, features) reshape into (week*day, features) -> (total
     nptrain = np.reshape(nptrain,(nptrain.shape[0] * nptrain.shape[1], nptrain.shape[2]))
     return nptrain
 
-def seperate_tr_te(List):
-    te = List[-50:]
-    tr = List[:-50]
+def seperate_tr_te(lis):
+    te = lis[-90:]
+    tr = lis[:-90]
     return tr, te
 
-def save_np(x, y, num, span, open_price):
+def save_np(x, y, num, span, open_price, close_price):
     scale = preprocessing.StandardScaler()
     train_x, x_test = seperate_tr_te(x)
     train_y, y_test = seperate_tr_te(y)
-    open_price = open_price[-50:]
+    open_price = open_price[-90:]
+    close_price = close_price[-90:]
     stock_name = num
 
     scale = scale.fit(resha(train_x))  #  standard scale, resha(x) = two dim /  (tr + te)
-
     with open('./csv_data/mean_var.csv', 'w', newline='')as csvfile:
         writer = csv.writer(csvfile, delimiter = ' ')
         writer.writerow(['mean', 'deviation'])
@@ -50,37 +50,49 @@ def save_np(x, y, num, span, open_price):
     Npdata = x_test
     np.save(os.path.join('./stock_data/tex/', 'test_x_' + stock_name), Npdata)
     print(" test_x_: ", Npdata.shape)
-    #print(Npdata)
+    # print(Npdata)
 
     Npdata = np.array(train_y)
     np.save(os.path.join('./stock_data/try/', 'train_y_' + stock_name), Npdata)
     print( " train_y_: ", Npdata.shape)
-    #print(Npdata)
+    # print(Npdata)
 
     Npdata = np.array(y_test)
     np.save(os.path.join('./stock_data/tey/', 'test_y_' + stock_name), Npdata)
     print(" test_y_: ", Npdata.shape)
     #print(Npdata)
 
-    Npdata = np.array(open_price)
-    np.save(os.path.join('./stock_data/trx/', 'open_x_' + stock_name), Npdata)
-    #print(num, " opentestX  ", Npdata.shape)
-    #print(Npdata)'''
+    npdata = np.array(open_price)
+    np.save(os.path.join('./stock_data/trx/', 'open_x_' + stock_name), npdata)
+    #print(num, " opentestx  ", npdata.shape)
+    #print(npdata)'''
+
+    npdata = np.array(close_price)
+    np.save(os.path.join('./stock_data/trx/', 'close_x_' + stock_name), npdata)
+    #print(num, " closetestx  ", npdata.shape)
+    #print(npdata)'''
+
 def generate_train_in_day(feature, data, name, span):
     train_x = []
     train_y = []
     open_price = []
+    close_price = []
     data.drop(['date'], axis = 1, inplace = True)
     for i in range(len(data)):#everyday
         if i < len(data) and ((i + span) < len(data)):
-            train_x.append(list(data.iloc[i+j].values.tolist() for j in range(span)))
+            train_x.append([data.iloc[i+j].values.tolist() for j in range(span)])
             i += span
             Open = data.iloc[i]['open']
             Close = data.iloc[i]['close']
             open_price.append(Open)
-            train_y.append(Close - Open)#the next day's diff
+            close_price.append(Close)
+            if Close - Open >0:
+                train_y.append(1)
+            else:
+                train_y.append(0)
+            #train_y.append(Close-Open)#the next day's diff
 
-    save_np(train_x, train_y, name, span, open_price)
+    save_np(train_x, train_y, name, span, open_price, close_price)
 
 def filter_feature(df, feature):
     df = df[df.columns[df.columns.isin(feature)]] #篩選出需要的feature
@@ -124,7 +136,7 @@ if '__main__' == __name__:
     stock_data, chip_data = load_csv(stock_num, start_date, end_date) #load selected stock's data which is in the set timespan
     af = Add_feature(stock_data) #calculate the wanted feature and add on the stock dataframe
     af.data = filter_feature(af.data, feature) #leave the wanted feature
-    #df = pd.concat([af.data, usa], axis=1).reindex(af.data.index) #concat the USA index on the data
+    df = pd.concat([af.data, usa], axis=1).reindex(af.data.index) #concat the USA index on the data
     df = pd.concat([af.data, chip_data], axis=1).reindex(af.data.index) #concat the chip on the data
     df = df.dropna()
     print(df)

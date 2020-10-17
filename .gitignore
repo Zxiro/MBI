@@ -7,4 +7,13 @@ env/
 predictimg/
 *pycache*/
 *.un~
+chip_data/
+chip/
+mean_var.csv
+csv_data/
+"\\"
+Evaluate/gain.png
+weekly_chip/
+usa_stock_data/
+stock_data/
 build_config.py
