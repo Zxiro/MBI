@@ -45,7 +45,7 @@ def save_np(x, y, num, span, open_price, close_price):
 
     Npdata = train_x
     np.save(os.path.join('./stock_data/trx/', 'train_x_' + stock_name), Npdata)
-    print(num ," train_x_: ", Npdata.shape)
+    # print(num ," train_x_: ", Npdata.shape)
 
     Npdata = x_test
     np.save(os.path.join('./stock_data/tex/', 'test_x_' + stock_name), Npdata)
@@ -137,7 +137,7 @@ if '__main__' == __name__:
     af = Add_feature(stock_data) #calculate the wanted feature and add on the stock dataframe
     af.data = filter_feature(af.data, feature) #leave the wanted feature
     df = pd.concat([af.data, usa], axis=1).reindex(af.data.index) #concat the USA index on the data
-    df = pd.concat([af.data, chip_data], axis=1).reindex(af.data.index) #concat the chip on the data
+    df = pd.concat([df, chip_data], axis=1).reindex(df.index) #concat the chip on the data
     df = df.dropna()
     print(df)
     df.to_csv('./csv_data/train.csv')

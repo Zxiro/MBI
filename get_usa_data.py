@@ -18,6 +18,8 @@ def get_usa_index():
         df = df[df.columns[df.columns.isin(features)]]
         df.rename(columns = { "Open":usa_dict[key]+"_open", "High":usa_dict[key]+"_high", "Low":usa_dict[key]+"_low", "Close":usa_dict[key]+"_close", "Adj Close":usa_dict[key]+"_adj_close"}, inplace = True)
         index_list.append(df)
+        print(index_list)
+    df = pd.concat([index_list[i] for i in range(len(index_list))], axis = 1)
     df.reset_index(inplace = True)
     df.drop('Date', axis = 1, inplace = True)
     df.drop('Volume', axis = 1, inplace = True)

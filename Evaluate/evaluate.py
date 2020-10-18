@@ -20,11 +20,11 @@ class Evaluate:
         model.fit裡面的val的分割方式要改成直接引入 不要使用validation.split
         '''
         self.x_train, self.y_train, self.x_test, self.y_test, self.x_val, self.y_val = load_data(stock)
-        self.origin_x_test = np.load('./stock_data/trx/open_x_'+stock+'.npy')
-        self.origin_x_close = np.load('./stock_data/trx/close_x_'+stock+'.npy')
+        self.origin_x_test = np.load('../stock_data/trx/open_x_'+stock+'.npy')
+        self.origin_x_close = np.load('../stock_data/trx/close_x_'+stock+'.npy')
         self.stock = stock
         #self.model_inc = load_model('../stockModel/stockmodel_inception_cnn_0050_dif.h5')
-        self.model_cnn = load_model('./stockModel/stockmodel_cnn_0050_dif.h5')
+        self.model_cnn = load_model('../stockModel/stockmodel_cnn_0050_dif.h5')
         #self.model_lstm = load_model('../stockModel/stockmodel_lstm_0050_dif.h5')
         #self.model = load_model('./stockModel/transformer_'+stock+'.h5',custom_objects={'MultiHeadSelfAttention':MultiHeadSelfAttention,'TokenAndPositionEmbedding':TokenAndPositionEmbedding,'TransformerBlock':TransformerBlock,}) #引入訓練完model
         #reloaded_model = tf.keras.experimental.load_from_saved_model('./stockModel/transformer_'+stock+'.h5', custom_objects={'KerasLayer':hub.KerasLayer})

@@ -1,5 +1,7 @@
 import os
 import sys
+sys.path.insert(1, '../')
+
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -16,25 +18,25 @@ from tensorflow.keras.callbacks import TensorBoard
 from sklearn.model_selection import train_test_split
 def load_data(stock_symbol):
     day = stock_dic['span']
-    x_train = np.load('./stock_data/trx/train_x_'+stock_symbol+'.npy')
-    y_train = np.load('./stock_data/try/train_y_'+stock_symbol+'.npy')
-    x_test = np.load('./stock_data/tex/test_x_'+stock_symbol+'.npy')
-    y_test = np.load('./stock_data/tey/test_y_'+stock_symbol+'.npy')
+    x_train = np.load('../stock_data/trx/train_x_'+stock_symbol+'.npy')
+    y_train = np.load('../stock_data/try/train_y_'+stock_symbol+'.npy')
+    x_test = np.load('../stock_data/tex/test_x_'+stock_symbol+'.npy')
+    y_test = np.load('../stock_data/tey/test_y_'+stock_symbol+'.npy')
     x_train = np.where(np.isnan(x_train), 0, x_train)
     feature = x_train.shape[-1]
 
     x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.2)
     Npdata = x_train
-    np.save(os.path.join('./stock_data/trx/train_x_'+ stock_symbol), Npdata)
+    np.save(os.path.join('../stock_data/trx/train_x_'+ stock_symbol), Npdata)
 
     Npdata = y_train
-    np.save(os.path.join('./stock_data/try/train_y_'+ stock_symbol), Npdata)
+    np.save(os.path.join('../stock_data/try/train_y_'+ stock_symbol), Npdata)
 
     Npdata = x_val
-    np.save(os.path.join('./stock_data/vax/val_x_' + stock_symbol), Npdata)
+    np.save(os.path.join('../stock_data/vax/val_x_' + stock_symbol), Npdata)
 
     Npdata = y_val
-    np.save(os.path.join('./stock_data/vay/val_y_' + stock_symbol), Npdata)
+    np.save(os.path.join('../stock_data/vay/val_y_' + stock_symbol), Npdata)
 
     return x_train, y_train, x_test, y_test, x_val, y_val
 

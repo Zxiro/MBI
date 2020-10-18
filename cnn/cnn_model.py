@@ -1,4 +1,7 @@
 import sys
+sys.path.insert(1, '../Evaluate')
+
+
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -42,6 +45,7 @@ model.add(Conv1D(filters = 64,
                 strides = 1,
                 activation = 'relu',
                 padding = 'same'))
+model.add(MaxPooling1D(2, padding = 'valid'))
 model.add(tf.keras.layers.BatchNormalization())
 model.add(Conv1D(filters = 32,
                 kernel_size = 3,
@@ -51,7 +55,6 @@ model.add(Conv1D(filters = 32,
                 ))
 model.add(tf.keras.layers.BatchNormalization())
 # model.add(AveragePooling1D(2, padding = 'valid'))
-#model.add(MaxPooling1D(2, padding = 'valid'))
 # model.add(Conv1D(filters = 32,
 #                 kernel_size = 2,
 #                 strides = 1,
@@ -59,7 +62,7 @@ model.add(tf.keras.layers.BatchNormalization())
 #
 #model.add(MaxPooling1D(2, padding = 'valid'))
 #model.add(AveragePooling1D(2, padding = 'valid'))
-model.add(Dropout(0.75)) #Solve overfitting -> batch normalization
+model.add(Dropout(0.7)) #Solve overfitting -> batch normalization
 model.add(Flatten())
 model.add(Dense((1), activation='sigmoid'))
 model.summary()
