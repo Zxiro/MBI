@@ -14,11 +14,11 @@ from tensorflow.keras.callbacks import TensorBoard
 #from Model.transformer import TokenAndPositionEmbedding, TransformerBlock, MultiHeadSelfAttention
 from sklearn.model_selection import train_test_split
 def load_data(stock_symbol):
-    day = 5
-    x_train = np.load('./StockData/TrainingData/NormtrainingX_'+stock_symbol+'.npy')
-    y_train = np.load('./StockData/TrainingData/trainingY_'+stock_symbol+'.npy')
-    x_test = np.load('./StockData/TrainingData/NormtestingX_'+stock_symbol+'.npy')
-    y_test = np.load('./StockData/TrainingData/testingY_'+stock_symbol+'.npy')
+    day = 10
+    x_train = np.load('./stock_data/trx/train_x_'+stock_symbol+'.npy')
+    y_train = np.load('./stock_data/try/train_y_'+stock_symbol+'.npy')
+    x_test = np.load('./stock_data/tex/test_x_'+stock_symbol+'.npy')
+    y_test = np.load('./stock_data/tey/test_y_'+stock_symbol+'.npy')
     x_train = np.where(np.isnan(x_train), 0, x_train)
     feature = x_train.shape[-1]
     x_train =x_train.reshape(-1,day,feature)
@@ -37,18 +37,20 @@ def load_data(stock_symbol):
     x_train = x_train[index]
     y_train = y_train[index]
     '''
+    print(x_train.shape)
+    print(y_train.shape)
     x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.2)
     Npdata = x_train
-    np.save(os.path.join('./StockData/TrainingData/', 'trainX_' + stock_symbol), Npdata)
+    np.save(os.path.join('./stock_data/trx/', 'trainx_' + stock_symbol), Npdata)
 
     Npdata = y_train
-    np.save(os.path.join('./StockData/TrainingData/', 'trainY_' + stock_symbol), Npdata)
+    np.save(os.path.join('./stock_data/try/', 'trainy_' + stock_symbol), Npdata)
 
     Npdata = x_val
-    np.save(os.path.join('./StockData/TrainingData/', 'valX_' + stock_symbol), Npdata)
+    np.save(os.path.join('./stock_data/trx/', 'valx_' + stock_symbol), Npdata)
 
     Npdata = y_val
-    np.save(os.path.join('./StockData/TrainingData/', 'valY_' + stock_symbol), Npdata)
+    np.save(os.path.join('./stock_data/try/', 'valy_' + stock_symbol), Npdata)
 
     #return x_train,y_train,x_test,y_test
     return x_train, y_train, x_test, y_test, x_val, y_val

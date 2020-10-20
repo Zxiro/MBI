@@ -52,6 +52,6 @@ if len(sys.argv) < 2:
 else:
     stock_symbol = sys.argv[1]
 stock_data = stock_read(stock_symbol, dirPath)
-file_name = "./StockData/stock"+stock_symbol+".csv"
+file_name = "./stock_data/stock/stock"+stock_symbol+".csv"
 stock_data.to_csv(file_name, index=False) #存入csv
 stock_data.drop(stock_data.index, inplace=True)

@@ -153,11 +153,11 @@ class TokenAndPositionEmbedding(layers.Layer):
 
 def load_transformer_model(embed_dim):
     #embed_dim = x_train.shape[-1]  #Embedding size for each token
-    num_heads = 2  # Number of attention heads
+    num_heads = 1  # Number of attention heads
     ff_dim = 32  # Hidden layer size in feed forward network inside transformer
 
     vocab_size = 20000  # Only consider the top 20k words
-    day = 5
+    day = 10
     maxlen = day
     inputs = layers.Input(shape=(maxlen,embed_dim))
     embedding_layer = TokenAndPositionEmbedding(maxlen, vocab_size, embed_dim, name="TokenAndPositionEmbedding")
@@ -167,29 +167,30 @@ def load_transformer_model(embed_dim):
     #print(x.size)
     transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim)
     x = transformer_block(x) #[none,5,20]
-    x = layers.LSTM(100, return_sequences = True)(x)
+    '''x = layers.LSTM(20, return_sequences = True)(x)
     x = layers.Dropout(0.1)(x)
-    x = layers.LSTM(100, return_sequences = True)(x)
+    x = layers.LSTM(20, return_sequences = True)(x)
     x = layers.Dropout(0.1)(x)
-    x = layers.LSTM(100, return_sequences = False)(x)
+    x = layers.LSTM(20, return_sequences = False)(x)
     #x = layers.Dense(20, activation="relu")(x) #[none,20] 
-    x = layers.Dense(20, activation="tanh")(x) #[none,20]
+    x = layers.Dense(20, activation="relu")(x) #[none,20]
     x = layers.Dropout(0.2)(x)
-    #x = layers.Dense(20, activation="linear")(x) #[none,1]
-    '''x = layers.Dense(20)(x)
+    x = layers.Dense(20, activation="linear")(x) #[none,1]
+    x = layers.Dropout(0.2)(x)
+    '''
+    x = layers.Dense(20)(x)
     x = layers.GlobalAveragePooling1D()(x) #[none,16]
     x = layers.Dropout(0.1)(x)
     x = layers.Dense(20, activation="relu")(x) #[none,20]
 
     x = layers.Dropout(0.1)(x)
-    x = layers.Dense(20, activation="linear")(x) #[none,1]
-    '''
+    outputs = layers.Dense(1, activation="linear")(x) #[none,1]
     #print(x.shape)
     #exit()
     #outputs = x
     #model = keras.Model(inputs=inputs,outputs=outputs)
     #print(model.summary())
-    outputs = layers.Dense(1)(x)
+    #outputs = layers.Dense(1)(x)
     #outputs = x
     '''
     index = list(range(len(x_train)))

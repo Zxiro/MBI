@@ -91,7 +91,6 @@ def generate_train_in_day(feature, data, name, span):
             else:
                 train_y.append(0)
             #train_y.append(Close-Open)#the next day's diff
-
     save_np(train_x, train_y, name, span, open_price, close_price)
 
 def filter_feature(df, feature):
@@ -100,9 +99,10 @@ def filter_feature(df, feature):
     return df
 
 def load_csv(num, start, end):
-    stock_data = pd.DataFrame(pd.read_csv('./stock_data/stock'+num+'.csv'))
-    chip_data = pd.DataFrame(pd.read_csv('./chip_data/'+ num +'_daily_chip.csv'))
+    stock_data = pd.DataFrame(pd.read_csv('./stock_data/stock/stock'+num+'.csv'))
+    #chip_data = pd.DataFrame(pd.read_csv('./chip_data/'+ num +'_daily_chip.csv'))
     stock_data['date'] = pd.to_datetime(stock_data['date'])
+    '''
     chip_data['date'] = pd.to_datetime(chip_data.index)
     chip_data.drop(['stock_id'], axis = 1, inplace = True)
     chip_data.set_index('date', inplace = True)
@@ -111,6 +111,8 @@ def load_csv(num, start, end):
     for c in chip_data.columns:
        chip_data[c] = chip_data[c].str.replace(',','')
        chip_data[c] = chip_data[c].astype(float) #str to float
+    '''
+    chip_data =[]
     start_date = pd.to_datetime(start)
     end_date = pd.to_datetime(end)
     count = 0
@@ -137,7 +139,7 @@ if '__main__' == __name__:
     af = Add_feature(stock_data) #calculate the wanted feature and add on the stock dataframe
     af.data = filter_feature(af.data, feature) #leave the wanted feature
     df = pd.concat([af.data, usa], axis=1).reindex(af.data.index) #concat the USA index on the data
-    df = pd.concat([df, chip_data], axis=1).reindex(df.index) #concat the chip on the data
+    #df = pd.concat([df, chip_data], axis=1).reindex(df.index) #concat the chip on the data
     df = df.dropna()
     print(df)
     df.to_csv('./csv_data/train.csv')
